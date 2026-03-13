@@ -31,7 +31,7 @@ try:
     from fabric_mapping_engine import MappingEngine
     from fabric_pipeline_generator import FabricPipelineGenerator
     MAPPING_ENGINE_AVAILABLE = True
-except ImportError as e:
+except ImportError as e:    
     MappingEngine = None
     FabricPipelineGenerator = None
     MAPPING_ENGINE_AVAILABLE = False
