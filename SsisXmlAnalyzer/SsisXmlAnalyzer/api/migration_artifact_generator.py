@@ -103,18 +103,20 @@ class MigrationArtifactGenerator:
             lstrip_blocks=True,
         )
 
-    def build_migration_package(self, parsed_data: Dict[str, Any], out_dir: Path) -> Path:
+    def build_migration_package(
+        self, parsed_data: Dict[str, Any], out_dir: Path, source_filename: Optional[str] = None
+    ) -> Path:
         """
-        Materialize `migration_package/` under out_dir and return the path.
+        Materialize [source_filename]_migration_package/ under out_dir and return the path.
+        Contains pipelines/, jobs/, unity_catalog/ only.
         """
-        pkg_root = out_dir / "migration_package"
+        folder_name = f"{source_filename}_migration_package" if source_filename else "migration_package"
+        pkg_root = out_dir / folder_name
         pipelines_dir = pkg_root / "pipelines"
         jobs_dir = pkg_root / "jobs"
-        metadata_dir = pkg_root / "metadata"
         unity_catalog_dir = pkg_root / "unity_catalog"
-        cli_dir = pkg_root / "cli"
 
-        for d in (pipelines_dir, jobs_dir, metadata_dir, unity_catalog_dir, cli_dir):
+        for d in (pipelines_dir, jobs_dir, unity_catalog_dir):
             d.mkdir(parents=True, exist_ok=True)
 
         package_name = (
@@ -125,20 +127,17 @@ class MigrationArtifactGenerator:
 
         table_specs = self._extract_table_specs(parsed_data)
         if not table_specs:
-            # Still generate empty but deployable skeleton.
             (unity_catalog_dir / "create_tables.sql").write_text("-- No destination tables detected.\n", encoding="utf-8")
-            (metadata_dir / "ControlTableIntegrated.sql").write_text("-- No source/destination pairs detected.\n", encoding="utf-8")
-            (metadata_dir / "SourceDetails.sql").write_text("-- No source tables detected.\n", encoding="utf-8")
-            deploy_sh = self._render("deploy.sh.j2", {})
-            (cli_dir / "deploy.sh").write_text(deploy_sh, encoding="utf-8")
             return pkg_root
 
         # Render per-table artifacts
         for spec in table_specs:
             table_file_key = _safe_filename(spec.target_table)
-            pipeline_name = self._pipeline_name(spec.target_catalog, spec.target_schema, spec.target_table)
+            pipeline_name = self._pipeline_name(
+                spec.target_catalog, spec.target_schema, spec.target_table, spec.load_type
+            )
 
-            # Configuration value should avoid "*" for CLI friendliness
+            # Configuration value: sanitized, no special chars
             adf_job_name = f"adf_{_safe_identifier(spec.target_table)}_load"
 
             dlt_json = self._render(
@@ -154,52 +153,15 @@ class MigrationArtifactGenerator:
             )
             (pipelines_dir / f"dlt_pipeline_{table_file_key}.json").write_text(dlt_json + "\n", encoding="utf-8")
 
+            # Job name MUST exactly match pipeline name (naming convention alignment)
             job_json = self._render(
                 "job.json.j2",
                 {
-                    "name": f"job_dlt_{_safe_identifier(spec.target_table)}",
+                    "name": pipeline_name,
                     "pipeline_id": f"${{resources.pipelines.{pipeline_name}.id}}",
                 },
             )
             (jobs_dir / f"job_{table_file_key}.json").write_text(job_json + "\n", encoding="utf-8")
-
-        # Metadata SQL
-        control_sql = self._render(
-            "control_table_integrated.sql.j2",
-            {
-                "rows": [
-                    {
-                        "pipeline_name": self._pipeline_name(s.target_catalog, s.target_schema, s.target_table),
-                        "source_schema": s.source_schema,
-                        "source_table": s.source_table,
-                        "target_catalog": s.target_catalog,
-                        "target_schema": s.target_schema,
-                        "target_table": s.target_table,
-                        "load_type": s.load_type,
-                        "watermark_column": s.watermark_column,
-                    }
-                    for s in table_specs
-                ],
-                "package_name": package_name,
-            },
-        )
-        (metadata_dir / "ControlTableIntegrated.sql").write_text(control_sql + "\n", encoding="utf-8")
-
-        source_sql = self._render(
-            "source_details.sql.j2",
-            {
-                "rows": [
-                    {
-                        "source_schema": s.source_schema,
-                        "source_table": s.source_table,
-                        "source_query": s.source_query,
-                    }
-                    for s in table_specs
-                ],
-                "package_name": package_name,
-            },
-        )
-        (metadata_dir / "SourceDetails.sql").write_text(source_sql + "\n", encoding="utf-8")
 
         # Unity Catalog SQL (unique catalogs/schemas/tables)
         create_tables_sql = self._render(
@@ -219,11 +181,27 @@ class MigrationArtifactGenerator:
         )
         (unity_catalog_dir / "create_tables.sql").write_text(create_tables_sql + "\n", encoding="utf-8")
 
-        # CLI script
-        deploy_sh = self._render("deploy.sh.j2", {})
-        (cli_dir / "deploy.sh").write_text(deploy_sh, encoding="utf-8")
-
         return pkg_root
+
+    def get_cli_commands(self, parsed_data: Dict[str, Any]) -> List[Dict[str, str]]:
+        """
+        Return CLI commands for each pipeline/job pair that would be generated.
+        Each item: { pipeline_file, job_file, pipeline_cmd, job_cmd, table_key }
+        """
+        table_specs = self._extract_table_specs(parsed_data)
+        commands: List[Dict[str, str]] = []
+        for spec in table_specs:
+            table_file_key = _safe_filename(spec.target_table)
+            pipeline_file = f"pipelines\\dlt_pipeline_{table_file_key}.json"
+            job_file = f"jobs\\job_{table_file_key}.json"
+            commands.append({
+                "pipeline_file": pipeline_file,
+                "job_file": job_file,
+                "pipeline_cmd": f"databricks pipelines create --json @{pipeline_file}",
+                "job_cmd": f"databricks jobs create --json @{job_file}",
+                "table_key": table_file_key,
+            })
+        return commands
 
     def _render(self, template_name: str, ctx: Dict[str, Any]) -> str:
         tpl = self._jinja.get_template(template_name)
@@ -237,12 +215,12 @@ class MigrationArtifactGenerator:
                 return rendered
         return rendered
 
-    def _pipeline_name(self, catalog: str, schema: str, table: str) -> str:
-        # Deterministic, CLI-safe naming rule:
-        # dlt_<env>_<catalog>_<schema>_<table> (all lowercase, safe chars)
+    def _pipeline_name(self, catalog: str, schema: str, table: str, load_type: str) -> str:
+        # Mandatory naming: dlt_[copymode]_[catalog]_[schema]_[table] (lowercase, safe chars only)
+        copymode = "inc" if (load_type or "").upper() == "INCREMENTAL" else "full"
         parts = [
             "dlt",
-            _safe_identifier(self._env_name),
+            copymode,
             _safe_identifier(catalog),
             _safe_identifier(schema),
             _safe_identifier(table),
@@ -297,7 +275,7 @@ class MigrationArtifactGenerator:
             target_catalog = (
                 (dm.get("targetDBName") or "")
                 or (dest_conn_details.get("initialCatalog") or dest_conn_details.get("dataSource") or "")
-                or "default_catalog"
+                or "databricks_learning_ws"
             )
 
             copy_mode = (dm.get("copyMode") or "Full") or "Full"

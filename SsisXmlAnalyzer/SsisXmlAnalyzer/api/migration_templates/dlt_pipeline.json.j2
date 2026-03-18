@@ -2,7 +2,6 @@
   "name": {{ name | tojson }},
   "catalog": {{ catalog | tojson }},
   "target": {{ schema | tojson }},
-  "storage": {{ ("dbfs:/pipelines/" ~ name) | tojson }},
   "continuous": false,
   "configuration": {
     "mypipeline.adf_job_name": {{ adf_job_name | tojson }}
@@ -10,18 +9,17 @@
   "clusters": [
     {
       "label": "default",
-      "spark_version": "13.3.x-scala2.12",
       "node_type_id": "Standard_DS3_v2",
-      "autoscale": {
-        "min_workers": 1,
-        "max_workers": 5
+      "num_workers": 0,
+      "spark_conf": {
+        "spark.databricks.cluster.profile": "singleNode"
       }
     }
   ],
   "libraries": [
     {
       "notebook": {
-        "path": {{ ("/Repos/" ~ repo_path ~ "/Generic_Load_Notebook") | tojson }}
+        "path": "/Workspace/DBX_F1/Ingestion/DLT_NB"
       }
     }
   ],

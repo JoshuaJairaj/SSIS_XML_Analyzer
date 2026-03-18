@@ -227,6 +227,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Proxy: get migration package CLI commands
+  app.post("/api/migration-package-commands", async (req, res) => {
+    try {
+      const response = await fetch("http://localhost:8000/api/migration-package-commands", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(req.body),
+      });
+      const data = await response.json().catch(() => ({}));
+      res.status(response.status).json(data);
+    } catch (error) {
+      console.error("Error proxying migration-package-commands:", error);
+      res.status(500).json({
+        success: false,
+        detail: error instanceof Error ? error.message : "Error communicating with Python FastAPI server.",
+      });
+    }
+  });
+
   // Proxy: download migration package ZIP
   app.get("/api/migration-package/:packageId", async (req, res) => {
     try {

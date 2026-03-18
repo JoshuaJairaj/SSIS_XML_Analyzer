@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useEffect } from "react";
-import { Upload, Search, Database, Code, GitBranch, FileText, PlayCircle, ArrowLeft, FileCode, Download, Cloud, AlertTriangle, CheckCircle2, XCircle, Loader2, Lock, Clock, ArrowRight, Layers, FileDown } from "lucide-react";
+import { Upload, Search, Database, Code, GitBranch, FileText, PlayCircle, ArrowLeft, FileCode, Download, Cloud, AlertTriangle, CheckCircle2, XCircle, Loader2, Lock, Clock, ArrowRight, Layers, FileDown, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,6 +18,7 @@ export default function WorkflowAnalyzer() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [parsedData, setParsedData] = useState<ParsedPackage | null>(null);
   const [packageId, setPackageId] = useState<string | null>(null);
+  const [originalFilename, setOriginalFilename] = useState<string | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -31,6 +32,7 @@ export default function WorkflowAnalyzer() {
   const [activeTab, setActiveTab] = useState("parsed");
   const [unityCatalogSql, setUnityCatalogSql] = useState<string | null>(null);
   const [unityCatalogNotebooks, setUnityCatalogNotebooks] = useState<Record<string, string> | null>(null);
+  const [cliCommands, setCliCommands] = useState<Array<{ pipeline_file: string; job_file: string; pipeline_cmd: string; job_cmd: string; table_key: string }> | null>(null);
   const [isLoadingUnityCatalog, setIsLoadingUnityCatalog] = useState(false);
   const { toast } = useToast();
 
@@ -42,6 +44,7 @@ export default function WorkflowAnalyzer() {
         // Clear previous parsed data when a new file is selected
         setParsedData(null);
         setPackageId(null);
+        setOriginalFilename(null);
         setSelectedActivity(null);
         setSearchQuery("");
         setXmlContent("");
@@ -70,6 +73,7 @@ export default function WorkflowAnalyzer() {
       // Clear previous parsed data when a new file is dropped
       setParsedData(null);
       setPackageId(null);
+      setOriginalFilename(null);
       setSelectedActivity(null);
       setSearchQuery("");
       setXmlContent("");
@@ -134,6 +138,7 @@ export default function WorkflowAnalyzer() {
       if (result.success && result.data) {
         setParsedData(result.data);
         setPackageId(typeof result.packageId === "string" ? result.packageId : null);
+        setOriginalFilename(typeof result.originalFilename === "string" ? result.originalFilename : null);
         // Use formatted XML from API if available, otherwise use file text
         if (result.formattedXml) {
           setXmlContent(result.formattedXml);
@@ -169,6 +174,7 @@ export default function WorkflowAnalyzer() {
     setSelectedFile(null);
     setParsedData(null);
     setPackageId(null);
+    setOriginalFilename(null);
     setSelectedActivity(null);
     setSearchQuery("");
     setXmlContent("");
@@ -189,20 +195,21 @@ export default function WorkflowAnalyzer() {
     if (parsedData) {
       setUnityCatalogSql(null);
       setUnityCatalogNotebooks(null);
+      setCliCommands(null);
     }
   }, [parsedData]);
 
   // Fetch Azure Unity Catalog artifacts when tab is selected and we have parsed data
   useEffect(() => {
     if (activeTab !== "unity-catalog" || !parsedData) return;
-    if (unityCatalogSql !== null && unityCatalogNotebooks !== null) return; // already loaded
+    if (unityCatalogSql !== null && unityCatalogNotebooks !== null && cliCommands !== null) return; // already loaded
 
     let cancelled = false;
     const fetchUnityCatalog = async () => {
       setIsLoadingUnityCatalog(true);
       try {
         const payload = { data: parsedData };
-        const [sqlRes, notebooksRes] = await Promise.all([
+        const [sqlRes, notebooksRes, commandsRes] = await Promise.all([
           fetch("/api/generate-control-table-sql", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -213,10 +220,16 @@ export default function WorkflowAnalyzer() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           }),
+          fetch("/api/migration-package-commands", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }),
         ]);
         if (cancelled) return;
         const sqlJson = await sqlRes.json().catch(() => ({}));
         const notebooksJson = await notebooksRes.json().catch(() => ({}));
+        const commandsJson = await commandsRes.json().catch(() => ({}));
         if (sqlJson.success && sqlJson.sqlScript != null) {
           setUnityCatalogSql(sqlJson.sqlScript);
         } else {
@@ -227,6 +240,11 @@ export default function WorkflowAnalyzer() {
         } else {
           setUnityCatalogNotebooks({});
         }
+        if (commandsJson.success && Array.isArray(commandsJson.commands)) {
+          setCliCommands(commandsJson.commands);
+        } else {
+          setCliCommands([]);
+        }
       } catch (e) {
         if (!cancelled) {
           toast({
@@ -236,6 +254,7 @@ export default function WorkflowAnalyzer() {
           });
           setUnityCatalogSql("-- Error loading metadata SQL.");
           setUnityCatalogNotebooks({});
+          setCliCommands([]);
         }
       } finally {
         if (!cancelled) setIsLoadingUnityCatalog(false);
@@ -243,7 +262,7 @@ export default function WorkflowAnalyzer() {
     };
     fetchUnityCatalog();
     return () => { cancelled = true; };
-  }, [activeTab, parsedData]);
+  }, [activeTab, parsedData, unityCatalogSql, unityCatalogNotebooks, cliCommands]);
 
   const handleDownloadSql = () => {
     if (!unityCatalogSql) return;
@@ -255,6 +274,13 @@ export default function WorkflowAnalyzer() {
     a.click();
     URL.revokeObjectURL(url);
     toast({ title: "Downloaded", description: "ControlTableIntegrated_Inserts.sql" });
+  };
+
+  const handleCopyCliCommand = (text: string) => {
+    navigator.clipboard.writeText(text).then(
+      () => toast({ title: "Copied", description: "Command copied to clipboard" }),
+      () => toast({ title: "Copy failed", variant: "destructive" })
+    );
   };
 
   const handleDownloadNotebook = (filename: string, content: string) => {
@@ -287,8 +313,10 @@ export default function WorkflowAnalyzer() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      const pkgName = parsedData?.metadata?.name || parsedData?.metadata?.objectName || "SSISPackage";
-      a.download = `${pkgName}_migration_package.zip`;
+      let baseName = originalFilename || parsedData?.metadata?.name || parsedData?.metadata?.objectName || "SSISPackage";
+      const ext = baseName.toLowerCase().endsWith(".dtsx") ? ".dtsx" : baseName.toLowerCase().endsWith(".xml") ? ".xml" : null;
+      if (ext) baseName = baseName.slice(0, -ext.length);
+      a.download = `${baseName}_migration_package.zip`;
       a.click();
       URL.revokeObjectURL(url);
       toast({ title: "Downloaded", description: a.download });
@@ -1097,6 +1125,75 @@ export default function WorkflowAnalyzer() {
                             ) : (
                               <p className="text-sm text-muted-foreground py-4">
                                 {parsedData ? "No Data Flow tasks found, or notebooks are still loading." : "Parse a package first to generate PySpark notebooks."}
+                              </p>
+                            )}
+                          </CardContent>
+                        </Card>
+
+                        {/* Databricks CLI commands for pipelines and jobs */}
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              <Code className="w-5 h-5" />
+                              Databricks CLI Commands
+                            </CardTitle>
+                            <CardDescription>
+                              Copy-paste ready commands for each pipeline and job. Run from the extracted migration package root.
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            {isLoadingUnityCatalog ? (
+                              <div className="flex items-center gap-2 text-muted-foreground py-4">
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                <span>Loading CLI commands…</span>
+                              </div>
+                            ) : cliCommands && cliCommands.length > 0 ? (
+                              <div className="space-y-4">
+                                {cliCommands.map((cmd) => (
+                                  <div
+                                    key={cmd.table_key}
+                                    className="rounded-md border border-border bg-muted/20 p-4 space-y-2"
+                                  >
+                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                      {cmd.pipeline_file}
+                                    </p>
+                                    <div className="flex items-center gap-2">
+                                      <code className="flex-1 text-sm font-mono bg-background px-2 py-1.5 rounded border break-all">
+                                        {cmd.pipeline_cmd}
+                                      </code>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleCopyCliCommand(cmd.pipeline_cmd)}
+                                        className="shrink-0"
+                                        title="Copy pipeline command"
+                                      >
+                                        <Copy className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <code className="flex-1 text-sm font-mono bg-background px-2 py-1.5 rounded border break-all">
+                                        {cmd.job_cmd}
+                                      </code>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleCopyCliCommand(cmd.job_cmd)}
+                                        className="shrink-0"
+                                        title="Copy job command"
+                                      >
+                                        <Copy className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))}
+                                <p className="text-xs text-muted-foreground">
+                                  Extract the migration package ZIP and run these commands from the package root directory.
+                                </p>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground py-4">
+                                {parsedData ? "No pipeline/job artifacts detected for this package." : "Parse a package first to generate CLI commands."}
                               </p>
                             )}
                           </CardContent>

@@ -2339,6 +2339,7 @@ async def parse_dtsx(
         _PARSED_PACKAGE_STORE[package_id] = {
             "parsed_data": parsed_data,
             "package_name": metadata.get('packageName', metadata.get('objectName', 'SSISPackage')),
+            "original_filename": filename,
             "created_at": time.time(),
         }
         if len(_PARSED_PACKAGE_STORE) > _PARSED_PACKAGE_STORE_MAX:
@@ -2351,6 +2352,7 @@ async def parse_dtsx(
             'data': parsed_data,
             'formattedXml': formatted_xml,
             'packageId': package_id,
+            'originalFilename': filename,
         }
         
     except HTTPException:
@@ -2660,6 +2662,25 @@ async def health_check():
     }
 
 
+@app.post("/api/migration-package-commands")
+async def get_migration_package_commands(request_data: Dict[str, Any] = Body(...)):
+    """
+    Return CLI commands for all pipeline/job JSONs that would be generated from the migration package.
+    Expects parsed SSIS package data (from /api/parse-dtsx response.data).
+    """
+    if not MIGRATION_ARTIFACTS_AVAILABLE or MigrationArtifactGenerator is None:
+        raise HTTPException(status_code=500, detail="MigrationArtifactGenerator is not available on the server.")
+    parsed_data = request_data.get("data", request_data)
+    if not isinstance(parsed_data, dict) or "activities" not in parsed_data:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid input: Expected parsed SSIS package data (from /api/parse-dtsx). Provide { data: { metadata, activities, ... } }.",
+        )
+    gen = MigrationArtifactGenerator()
+    commands = gen.get_cli_commands(parsed_data)
+    return {"success": True, "commands": commands}
+
+
 @app.get("/api/migration-package/{packageId}")
 async def get_migration_package(packageId: str, background_tasks: BackgroundTasks):
     """
@@ -2673,22 +2694,22 @@ async def get_migration_package(packageId: str, background_tasks: BackgroundTask
         raise HTTPException(status_code=404, detail="Unknown packageId or metadata has expired. Parse the package again.")
 
     parsed_data = entry["parsed_data"]
-    package_name = (
-        entry.get("package_name")
-        or parsed_data.get("metadata", {}).get("packageName")
-        or parsed_data.get("metadata", {}).get("objectName")
-        or "SSISPackage"
-    )
-    safe_pkg = re.sub(r"[^A-Za-z0-9._-]+", "_", str(package_name)).strip("_") or "SSISPackage"
+    # Use parsed file name (without extension) for folder and zip name
+    original_filename = entry.get("original_filename") or ""
+    for ext in (".xml", ".dtsx"):
+        if original_filename.lower().endswith(ext):
+            original_filename = original_filename[: -len(ext)]
+            break
+    base_name = re.sub(r"[^A-Za-z0-9._-]+", "_", str(original_filename).strip()).strip("_") or "SSISPackage"
 
     temp_root = Path(tempfile.mkdtemp(prefix="migration_pkg_"))
-    zip_path = temp_root / f"{safe_pkg}_migration_package.zip"
+    zip_path = temp_root / f"{base_name}_migration_package.zip"
 
     try:
         gen = MigrationArtifactGenerator()
-        gen.build_migration_package(parsed_data, temp_root)
+        gen.build_migration_package(parsed_data, temp_root, source_filename=base_name)
 
-        pkg_dir = temp_root / "migration_package"
+        pkg_dir = temp_root / f"{base_name}_migration_package"
         with zipfile.ZipFile(str(zip_path), "w", compression=zipfile.ZIP_DEFLATED) as zf:
             for p in pkg_dir.rglob("*"):
                 if p.is_dir():
@@ -2703,7 +2724,7 @@ async def get_migration_package(packageId: str, background_tasks: BackgroundTask
     return FileResponse(
         path=str(zip_path),
         media_type="application/zip",
-        filename=f"{safe_pkg}_migration_package.zip",
+        filename=f"{base_name}_migration_package.zip",
     )
 
 
