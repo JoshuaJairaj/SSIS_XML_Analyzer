@@ -2,7 +2,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Body, BackgroundTa
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response, FileResponse
 from lxml import etree
-from typing import List, Dict, Any, Optional, Union, Set
+from typing import List, Dict, Any, Optional, Union, Set, Tuple
 import re
 import subprocess
 import tempfile
@@ -69,72 +69,129 @@ app.add_middleware(
 DTS_NAMESPACE = {'DTS': 'www.microsoft.com/SqlServer/Dts'}
 
 
+if SQLGLOT_AVAILABLE:
+    def _sqlglot_ident_to_str(node: Any) -> str:
+        """Normalize sqlglot Identifier / string nodes to plain text."""
+        if node is None:
+            return ""
+        if isinstance(node, str):
+            return node.strip()
+        nm = getattr(node, "name", None)
+        if isinstance(nm, str) and nm.strip():
+            return nm.strip()
+        this = getattr(node, "this", None)
+        if this is not None:
+            return str(this).strip()
+        return str(node).strip()
+
+    def _sqlglot_strip_brackets(s: str) -> str:
+        s = s.strip()
+        if len(s) >= 2 and s[0] == "[" and s[-1] == "]":
+            return s[1:-1]
+        return s
+
+    def _sqlglot_collect_cte_names(expression: exp.Expression) -> Set[str]:
+        """Names of CTEs in the query; FROM <cte> parses as exp.Table and must be skipped."""
+        names: Set[str] = set()
+        for cte in expression.find_all(exp.CTE):
+            alias = cte.args.get("alias")
+            if alias is None:
+                continue
+            if isinstance(alias, exp.TableAlias):
+                s = _sqlglot_ident_to_str(alias.this)
+            else:
+                s = _sqlglot_ident_to_str(alias)
+            if s:
+                names.add(s.upper())
+        return names
+
+    def _sqlglot_is_cte_reference(table: exp.Table, cte_names: Set[str]) -> bool:
+        """True when this Table is an unqualified reference to a CTE (not a same-named schema.table)."""
+        n = _sqlglot_ident_to_str(table.name)
+        if not n or n.upper() not in cte_names:
+            return False
+        if table.db or table.catalog:
+            return False
+        return True
+
+    def _sqlglot_qualified_table_name(table: exp.Table) -> Tuple[str, str, str, str]:
+        """Build (database, schema, table, fullName) from exp.Table only — excludes AS alias on the Table node."""
+        catalog = ""
+        if table.catalog:
+            catalog = _sqlglot_strip_brackets(_sqlglot_ident_to_str(table.catalog))
+        db = ""
+        if table.db:
+            db = _sqlglot_strip_brackets(_sqlglot_ident_to_str(table.db))
+        name = _sqlglot_strip_brackets(_sqlglot_ident_to_str(table.name))
+        if not name:
+            return ("", "", "", "")
+        parts = [p for p in (catalog, db, name) if p]
+        full_name = ".".join(parts)
+        return (catalog, db, name, full_name)
+
+    def _sqlglot_extract_physical_tables(sql_query: str) -> Optional[List[Dict[str, str]]]:
+        """
+        Parse SQL with sqlglot and return only physical table references (exp.Table), deduplicated.
+        Traverses nested subqueries, joins, and window queries via find_all(exp.Table).
+        Returns None if no dialect could parse the statement; [] if parsed but no base tables.
+        """
+        parsed: Optional[exp.Expression] = None
+        for dialect in ("tsql", "oracle", None):
+            try:
+                parsed = parse_one(sql_query, dialect=dialect)
+                break
+            except Exception:
+                continue
+        if parsed is None:
+            return None
+
+        cte_names = _sqlglot_collect_cte_names(parsed)
+        seen: Set[str] = set()
+        tables: List[Dict[str, str]] = []
+
+        for table in parsed.find_all(exp.Table):
+            if _sqlglot_is_cte_reference(table, cte_names):
+                continue
+            database_name, schema_name, table_name, full_name = _sqlglot_qualified_table_name(table)
+            if not full_name:
+                continue
+            if table_name.upper() == "DUAL" and not schema_name and not database_name:
+                continue
+            key = full_name.upper()
+            if key in seen:
+                continue
+            seen.add(key)
+            tables.append({
+                "database": database_name,
+                "schema": schema_name,
+                "table": table_name,
+                "fullName": full_name,
+            })
+        return tables
+
+
 def extract_table_references(sql_query: str) -> List[Dict[str, str]]:
     """
     Extract database.schema.table references from a SQL query.
-    Handles complex queries including JOINs, subqueries, CTEs, aliases, etc.
-    Returns a list of unique table references with their components (database, schema, table).
-    Properly maps: Database.Schema.TableName
+    Uses sqlglot to collect only physical tables (exp.Table): not columns, functions, or aliases.
+    Skips CTE names referenced as tables. Deduplicates by full qualified name.
+    Falls back to regex only when sqlglot cannot parse the statement.
     """
     if not sql_query or not isinstance(sql_query, str):
         return []
-    
-    tables = []
-    seen_tables: Set[str] = set()  # To avoid duplicates
-    
+
+    tables: List[Dict[str, str]] = []
+    seen_tables: Set[str] = set()
+
     try:
-        # If sqlglot is available, use it for robust parsing
         if SQLGLOT_AVAILABLE:
             try:
-                # Try to parse the SQL query - sqlglot is very flexible with different SQL dialects
-                parsed = parse_one(sql_query, dialect="tsql")  # Use T-SQL dialect for SQL Server
-                
-                # Extract all table references from the parsed query
-                for table_expr in parsed.find_all(exp.Table):
-                    # Get the full table name with schema and database if available
-                    table_name = table_expr.name
-                    schema_name = None
-                    database_name = None
-                    
-                    # sqlglot provides: .catalog (database), .db (schema), .name (table)
-                    # For [database].[schema].[table] format
-                    if table_expr.catalog:
-                        database_name = table_expr.catalog
-                    
-                    if table_expr.db:
-                        schema_name = table_expr.db
-                    
-                    # Build the full qualified name
-                    if table_name:  # Only add if we have a table name
-                        full_name = ""
-                        parts = []
-                        if database_name:
-                            parts.append(database_name)
-                        if schema_name:
-                            parts.append(schema_name)
-                        parts.append(table_name)
-                        
-                        full_name = ".".join(parts)
-                        
-                        # Only add if we haven't seen this exact reference before
-                        if full_name not in seen_tables and table_name.lower() not in ('dual',):
-                            seen_tables.add(full_name)
-                            tables.append({
-                                'database': database_name or "",
-                                'schema': schema_name or "",
-                                'table': table_name,
-                                'fullName': full_name
-                            })
-                
-                # If sqlglot found tables, return them
-                if tables:
-                    return tables
-                
-                # If sqlglot didn't find anything, fall through to regex
+                sqlglot_tables = _sqlglot_extract_physical_tables(sql_query)
+                if sqlglot_tables is not None:
+                    return sqlglot_tables
             except Exception as e:
-                # If sqlglot parsing fails, fall through to regex method
-                print(f"sqlglot parsing failed: {e}. Using regex fallback.")
-        
+                print(f"sqlglot extraction failed: {e}. Using regex fallback.")
+
         # Fallback: Use regex-based parsing for common SQL patterns
         # Remove comments
         sql_clean = re.sub(r'--[^\n]*', '', sql_query, flags=re.MULTILINE)
