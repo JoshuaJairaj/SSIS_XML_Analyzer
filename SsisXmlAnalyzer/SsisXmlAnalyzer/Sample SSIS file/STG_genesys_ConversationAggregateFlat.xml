@@ -1,0 +1,2819 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="3/1/2023 10:03:55 AM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="USA-X8021842"
+  DTS:CreatorName="CTL\tchinie"
+  DTS:DTSID="{C9798611-F527-4158-B246-E5B905B97F3F}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="13.0.4561.14"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="STG_genesys_ConversationAggregateFlat"
+  DTS:PackageType="5"
+  DTS:ProtectionLevel="2"
+  DTS:VersionBuild="139"
+  DTS:VersionGUID="{775185CD-90C3-455B-AEEA-D55B89492795}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{39425902-3C98-4456-82C1-0C87FBEDFFEA}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="DeleteRowCount">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{EAB6D5AC-BD4D-4F29-A480-987C16F6D936}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="ExtractRowCount">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{86E24DDB-4CA1-4EF0-9F65-DC686A4E2A04}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="FinalRowCount">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{0E2EBA3C-2106-4057-9135-BDA5FA8141D3}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="IncrementalProcessingIndicator">
+      <DTS:VariableValue
+        DTS:DataType="8">Y</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{2E57B252-94C0-44D8-A519-A54CEE2864D9}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="InitialRowCount">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{44AE01EA-901D-4688-8DF1-76ADAFE1634A}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="InsertRowCount">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{F1BF66AE-CEE8-42B0-AD66-8ADA4FCECA20}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="LastMaxDate">
+      <DTS:VariableValue
+        DTS:DataType="8"
+        xml:space="preserve"></DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{BAA8247A-9B79-41CD-AE18-9E7287D39047}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="LoadType">
+      <DTS:VariableValue
+        DTS:DataType="8">Incremental Load</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{F51D3C08-4ED4-4D80-BD0F-97B486E44AFB}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="MaxDt">
+      <DTS:VariableValue
+        DTS:DataType="7">6/1/2023 9:51:00 AM</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{98EB49D7-0DA7-4F82-8DE7-18215D588D48}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="OutETLAuditKey">
+      <DTS:VariableValue
+        DTS:DataType="20">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{3AACFA17-2874-40C0-8730-532AB110BD8B}"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="&quot;SELECT DISTINCT &#xA;CA.USERID||CA.QUEUEID||CA.SKILLID||CA.DIRECTION||CA.CONVERSATIONID||CA.MEDIATYPE||CA.LANGUAGEID||CA.PURPOSE||SUBSTR(CA.ANI,1,100)||&#xA;    CA.DISCONNECTTYPE||CA.SESSIONID||CA.ORIGINATINGDIRECTION||CA.INTERVALBEGINUTC AS CONVERSATION_AGGREGATE_FLAT_ID,&#xA;CA.CONVERSATIONID,&#xA;CA.SESSIONID,&#xA;CA.ORIGINATINGDIRECTION,&#xA;CA.DIRECTION,&#xA;CA.DISCONNECTTYPE,&#xA;CA.MEDIATYPE,&#xA;CA.USERID,&#xA;CA.QUEUEID,&#xA;CA.SKILLID,&#xA;CA.LANGUAGEID,&#xA;CA.PURPOSE,&#xA;CA.ANI,&#xA;CA.INTERVALBEGINUTC,&#xA;CA.INTERVALENDUTC,&#xA;CA.NBLINDTRANSFERRED,&#xA;CA.NCONNECTED,&#xA;CA.NCONSULT,&#xA;CA.NCONSULTTRANSFERRED,&#xA;CA.DW_CREATE_DT,&#xA;CA.DW_LAST_MODIFY_DT&#xA;FROM GENESYS.CONVERSATION C&#xA;INNER JOIN GENESYS.PARTICIPANT P &#xA;    ON C.CONVERSATIONID = P.CONVERSATIONID&#xA;INNER JOIN GENESYS.PARTICIPANT_SESSION PS &#xA;    ON P.PARTICIPANTID = PS.PARTICIPANTID&#xA;INNER JOIN GENESYS.SESSION_SEGMENT SS &#xA;    ON SS.PARTICIPANTID = PS.PARTICIPANTID &#xA;        AND SS.SESSIONID = PS.SESSIONID&#xA;LEFT OUTER JOIN (SELECT U.USERID, &#xA;                      U.NAME AS USERNAME, &#xA;                      U.EMPLOYEEID AS USEREMPLOYEEID&#xA;                  FROM GENESYS.USERS U&#xA;                  WHERE U.DW_ACTIVE_IND = 'Y'&#xA;                  GROUP BY U.USERID, U.NAME, U.EMPLOYEEID) U ON P.USERID = U.USERID&#xA;INNER JOIN GENESYS.CONVERSATION_AGGREGATE_FLAT CA&#xA;    ON CA.CONVERSATIONID=P.CONVERSATIONID&#xA;    AND CA.SESSIONID=SS.SESSIONID&#xA;    AND CA.DISCONNECTTYPE=SS.DISCONNECTTYPE&#xA;    AND CA.USERID=U.USERID&#xA;    AND SS.SEGMENTSTART BETWEEN CA.INTERVALBEGINUTC AND CA.INTERVALENDUTC&#xA;WHERE C.CONVERSATIONSTART &gt; TO_DATE('&quot;+ (DT_STR,30,1252)@[User::MaxDt]+&quot;','MM/DD/YYYY HH:MI:SS PM')&quot;"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="Qry">
+      <DTS:VariableValue
+        DTS:DataType="8">SELECT DISTINCT 
+CA.USERID||CA.QUEUEID||CA.SKILLID||CA.DIRECTION||CA.CONVERSATIONID||CA.MEDIATYPE||CA.LANGUAGEID||CA.PURPOSE||SUBSTR(CA.ANI,1,100)||
+    CA.DISCONNECTTYPE||CA.SESSIONID||CA.ORIGINATINGDIRECTION||CA.INTERVALBEGINUTC AS CONVERSATION_AGGREGATE_FLAT_ID,
+CA.CONVERSATIONID,
+CA.SESSIONID,
+CA.ORIGINATINGDIRECTION,
+CA.DIRECTION,
+CA.DISCONNECTTYPE,
+CA.MEDIATYPE,
+CA.USERID,
+CA.QUEUEID,
+CA.SKILLID,
+CA.LANGUAGEID,
+CA.PURPOSE,
+CA.ANI,
+CA.INTERVALBEGINUTC,
+CA.INTERVALENDUTC,
+CA.NBLINDTRANSFERRED,
+CA.NCONNECTED,
+CA.NCONSULT,
+CA.NCONSULTTRANSFERRED,
+CA.DW_CREATE_DT,
+CA.DW_LAST_MODIFY_DT
+FROM GENESYS.CONVERSATION C
+INNER JOIN GENESYS.PARTICIPANT P 
+    ON C.CONVERSATIONID = P.CONVERSATIONID
+INNER JOIN GENESYS.PARTICIPANT_SESSION PS 
+    ON P.PARTICIPANTID = PS.PARTICIPANTID
+INNER JOIN GENESYS.SESSION_SEGMENT SS 
+    ON SS.PARTICIPANTID = PS.PARTICIPANTID 
+        AND SS.SESSIONID = PS.SESSIONID
+LEFT OUTER JOIN (SELECT U.USERID, 
+                      U.NAME AS USERNAME, 
+                      U.EMPLOYEEID AS USEREMPLOYEEID
+                  FROM GENESYS.USERS U
+                  WHERE U.DW_ACTIVE_IND = 'Y'
+                  GROUP BY U.USERID, U.NAME, U.EMPLOYEEID) U ON P.USERID = U.USERID
+INNER JOIN GENESYS.CONVERSATION_AGGREGATE_FLAT CA
+    ON CA.CONVERSATIONID=P.CONVERSATIONID
+    AND CA.SESSIONID=SS.SESSIONID
+    AND CA.DISCONNECTTYPE=SS.DISCONNECTTYPE
+    AND CA.USERID=U.USERID
+    AND SS.SEGMENTSTART BETWEEN CA.INTERVALBEGINUTC AND CA.INTERVALENDUTC
+WHERE C.CONVERSATIONSTART &gt; TO_DATE('6/1/2023 9:51:00 AM','MM/DD/YYYY HH:MI:SS PM')</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{76F84D4C-FE62-4DEB-B52D-695D9771975C}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="SourceSystem">
+      <DTS:VariableValue
+        DTS:DataType="8">Genesys</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{9B33D0A7-2652-4867-AD1F-DD5DDD2A2FEA}"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="(DT_WSTR,10)(DT_DBDATE)@[System::ContainerStartTime]+ &quot; &quot; + (DT_WSTR,8)(DT_DBTIME)@[System::ContainerStartTime]"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="StartTime">
+      <DTS:VariableValue
+        DTS:DataType="8">2025-09-05 14:53:33</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{86AE0324-E260-4888-BB8B-893171809441}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="SuccessfulProcessingIndicator">
+      <DTS:VariableValue
+        DTS:DataType="8">Y</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{67FF86FC-3993-420B-95C2-C4A7B9E17D09}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="TableName">
+      <DTS:VariableValue
+        DTS:DataType="8">genesys.ConversationAggregateFlat</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{84213CA9-5667-411A-BE01-53CFFE6DFAD3}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="UpdateRowCount">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Delete ConversationAggregateFlat Rows &gt; 25 Months Old"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{3AA09FB8-C8DE-4189-A958-7E731FBEE3C4}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Delete ConversationAggregateFlat Rows &gt; 25 Months Old"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{B6BBA11C-C10E-469D-8672-1F63049B267F}"
+          SQLTask:SqlStatementSource="SELECT COUNT(*)&#xA;FROM Genesys.ConversationAggregateFlat&#xA;WHERE DW_LAST_MODIFY_DT &lt; DATEADD(month,DATEDIFF(month,0,GETDATE())-25,0)&#xA;&#xA;DELETE Genesys.ConversationAggregateFlat&#xA;WHERE DW_LAST_MODIFY_DT &lt; DATEADD(month,DATEDIFF(month,0,GETDATE())-25,0)&#xA;GO&#xA;"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="0"
+            SQLTask:DtsVariableName="User::DeleteRowCount" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Get ConversationAggregateFlat Max Load Start Date and Row Count"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{ADDE99B8-6560-41A0-8C06-3DADC1633940}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Get ConversationAggregateFlat Max Load Start Date and Row Count"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{B6BBA11C-C10E-469D-8672-1F63049B267F}"
+          SQLTask:SqlStatementSource="SELECT ISNULL(MAX(MaxDWLastModifyDate), '2022-03-01')-20 MaxDt,&#xA;(SELECT COUNT(*) FROM genesys.ConversationAggregateFlat) AS RowCnt&#xA;FROM genesys.LoadAudit&#xA;WHERE TableName = 'genesys.ConversationAggregateFlat'&#xA;      AND SuccessfulProcessingIndicator = 'Y';"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="MaxDt"
+            SQLTask:DtsVariableName="User::MaxDt" />
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="RowCnt"
+            SQLTask:DtsVariableName="User::InitialRowCount" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Get Final ConversationAggregateFlat Max Load Date and Row Count"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{3197D60A-04BB-4A53-B5C2-C8DF5C9E2FA1}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Get Final ConversationAggregateFlat Max Load Date and Row Count"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{B6BBA11C-C10E-469D-8672-1F63049B267F}"
+          SQLTask:SqlStatementSource="SELECT COUNT(*) tbl_count,&#xA;       ISNULL(MAX(DW_LAST_MODIFY_DT), '1900-01-01') last_max_dt&#xA;FROM genesys.ConversationAggregateFlat;&#xA;"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="tbl_count"
+            SQLTask:DtsVariableName="User::FinalRowCount" />
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="last_max_dt"
+            SQLTask:DtsVariableName="User::LastMaxDate" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Insert ConversationAggregateFlat Audit Data"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{914E889A-53A5-462B-9261-C8A86BA391ED}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Insert ConversationAggregateFlat Audit Data"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{B6BBA11C-C10E-469D-8672-1F63049B267F}"
+          SQLTask:SqlStatementSource="EXEC genesys.uspInsertLoadAudit&#xA;@ExecutionDateTime = ?,&#xA;@TableName = ?,&#xA;@LoadType = ?,&#xA;@ProcessName = ?,&#xA;@OutETLAuditKey = ? OUTPUT&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::StartTime"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::TableName"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
+            SQLTask:DtsVariableName="User::LoadType"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="3"
+            SQLTask:DtsVariableName="System::PackageName"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="130"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="4"
+            SQLTask:DtsVariableName="User::OutETLAuditKey"
+            SQLTask:ParameterDirection="Output"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Log Job End"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{670A021A-D0B5-4E24-9DC5-94054864D70B}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Log Job End"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{B36FAA09-9090-4407-AC84-6B20CDEC7B40}"
+          SQLTask:SqlStatementSource=" EXEC dbo.uspJobValidationUpdate&#xA;             @reportname = 'STG_genesys_ConversationAggregateFlat' &#xA;            ,@updatetype = 1" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Log Job Start"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{661220CC-16D4-48DB-A303-AC3ED0C0E031}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Log Job Start"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{B36FAA09-9090-4407-AC84-6B20CDEC7B40}"
+          SQLTask:SqlStatementSource="EXEC dbo.uspJobValidationUpdate&#xA;  @reportname = 'STG_genesys_ConversationAggregateFlat'&#xA; ,@updatetype = 0&#xA; ,@frequency = 'd'&#xA; ,@owner = 'BIRA_SA'&#xA; ,@sourceserver = 'USIDCVSSIS0005'&#xA; ,@sourcejob = 'BIRA_CALL_DATA_LOAD'&#xA; ,@sourcepackagesp = 'CALL_DATA'" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Update ConversationAggregateFlat Audit Data"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{14502B0A-F8AD-4A50-A37F-28AB7EC5C3F3}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Update ConversationAggregateFlat Audit Data"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{B6BBA11C-C10E-469D-8672-1F63049B267F}"
+          SQLTask:BypassPrepare="False"
+          SQLTask:SqlStatementSource="EXEC genesys.uspUpdateLoadAudit&#xA;@ETLAuditKey = ?,&#xA;@SourceExtractRowCount = ?,&#xA;@DestinationInsertRowCount = ?,&#xA;@DestinationUpdateRowCount = ?,&#xA;@DestinationTableInitialRowCount = ?,&#xA;@DestinationTableFinalRowCount = ?,&#xA;@SuccessfulProcessingIndicator = ?,&#xA;@IsIncremental = ?,&#xA;@DestinationExceededMaxDateDeletionCount = ?,&#xA;@LastMaxDWLastModifyDate = ?&#xA;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::OutETLAuditKey"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::ExtractRowCount"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
+            SQLTask:DtsVariableName="User::InsertRowCount"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="3"
+            SQLTask:DtsVariableName="User::UpdateRowCount"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="4"
+            SQLTask:DtsVariableName="User::InitialRowCount"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="5"
+            SQLTask:DtsVariableName="User::FinalRowCount"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="6"
+            SQLTask:DtsVariableName="User::SuccessfulProcessingIndicator"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="7"
+            SQLTask:DtsVariableName="User::IncrementalProcessingIndicator"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="8"
+            SQLTask:DtsVariableName="User::DeleteRowCount"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="9"
+            SQLTask:DtsVariableName="User::LastMaxDate"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Upsert ConversationAggregateFlat Data"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{18C7ACD8-42CB-4929-A2F1-F3277A04B24E}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Upsert ConversationAggregateFlat Data"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          autoAdjustBufferSize="true"
+          version="1">
+          <components>
+            <component
+              refId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
+              name="Derived Column - Failed Records"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Outputs[Derived Column Output].Columns[TableName]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="24"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Outputs[Derived Column Output].Columns[TableName]"
+                      name="TableName"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">@[User::TableName]</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">@[User::TableName]</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Upsert ConversationAggregateFlat Data\Extract Row Count"
+              componentClassID="Microsoft.RowCount"
+              contactInfo="Row Count;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Counts rows as they pass through a data flow. For example, use the number of rows processed to determine whether or not to perform cleanup operations, or update text in an e-mail message to communicate processing status."
+              name="Extract Row Count">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable to hold the row count."
+                  name="VariableName">User::ExtractRowCount</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\Upsert ConversationAggregateFlat Data\Extract Row Count.Inputs[Row Count Input 1]"
+                  hasSideEffects="true"
+                  name="Row Count Input 1">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Upsert ConversationAggregateFlat Data\Extract Row Count.Outputs[Row Count Output 1]"
+                  name="Row Count Output 1"
+                  synchronousInputId="Package\Upsert ConversationAggregateFlat Data\Extract Row Count.Inputs[Row Count Input 1]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Upsert ConversationAggregateFlat Data\Failed Records"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="Failed Records"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[genesys].[FailedRecords]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">200000</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Connections[OleDbConnection]"
+                  connectionManagerID="{B6BBA11C-C10E-469D-8672-1F63049B267F}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[STG_OLEDB.usidcvsql0253]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].Columns[ErrorCode]"
+                      cachedDataType="i4"
+                      cachedName="ErrorCode"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[ErrorCode]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorCode]" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].Columns[ErrorColumn]"
+                      cachedDataType="i4"
+                      cachedName="ErrorColumn"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[ErrorColumn]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorColumn]" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].Columns[TableName]"
+                      cachedDataType="wstr"
+                      cachedLength="24"
+                      cachedName="TableName"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[TableName]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Outputs[Derived Column Output].Columns[TableName]" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].Columns[ErrorColumnName]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="128"
+                      cachedName="ErrorColumnName"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[ErrorColumnName]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorColumnName]" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].Columns[ErrorMessage]"
+                      cachedDataType="wstr"
+                      cachedLength="1024"
+                      cachedName="ErrorMessage"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[ErrorMessage]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorMessage]" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].Columns[DW_LAST_MODIFY_DT]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="DW_LAST_MODIFY_DT"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[CreateTimestamp]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[DW_LAST_MODIFY_DT]" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].Columns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      cachedDataType="wstr"
+                      cachedLength="450"
+                      cachedName="CONVERSATION_AGGREGATE_FLAT_ID"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[ID]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[CONVERSATION_AGGREGATE_FLAT_ID]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[TableName]"
+                      dataType="wstr"
+                      length="200"
+                      name="TableName" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[Description]"
+                      dataType="nText"
+                      name="Description" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[ErrorCode]"
+                      dataType="nText"
+                      name="ErrorCode" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[ErrorColumn]"
+                      dataType="nText"
+                      name="ErrorColumn" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[ErrorColumnName]"
+                      codePage="1252"
+                      dataType="str"
+                      length="128"
+                      name="ErrorColumnName" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[CreateTimestamp]"
+                      dataType="dbTimeStamp"
+                      name="CreateTimestamp" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[ErrorMessage]"
+                      dataType="nText"
+                      name="ErrorMessage" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[ID]"
+                      dataType="wstr"
+                      length="450"
+                      name="ID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input].ExternalColumns[ID2]"
+                      dataType="wstr"
+                      length="200"
+                      name="ID2" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="Get ASL (Oracle) ConversationAggregateFlat Data"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable">User::Qry</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Connections[OleDbConnection]"
+                  connectionManagerID="{03807CF3-ED27-4435-81EF-0B508B3FB769}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ASL01P.SASTAGING_RO]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[DW_CREATE_DT]"
+                      dataType="dbTimeStamp"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[DW_CREATE_DT]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[DW_CREATE_DT]"
+                      name="DW_CREATE_DT"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[DW_LAST_MODIFY_DT]"
+                      dataType="dbTimeStamp"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[DW_LAST_MODIFY_DT]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[DW_LAST_MODIFY_DT]"
+                      name="DW_LAST_MODIFY_DT"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[CONVERSATIONID]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[CONVERSATIONID]"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[CONVERSATIONID]"
+                      name="CONVERSATIONID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[SESSIONID]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[SESSIONID]"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[SESSIONID]"
+                      name="SESSIONID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[DISCONNECTTYPE]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[DISCONNECTTYPE]"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[DISCONNECTTYPE]"
+                      name="DISCONNECTTYPE"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[USERID]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[USERID]"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[USERID]"
+                      name="USERID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[INTERVALBEGINUTC]"
+                      dataType="dbTimeStamp"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[INTERVALBEGINUTC]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[INTERVALBEGINUTC]"
+                      name="INTERVALBEGINUTC"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[INTERVALENDUTC]"
+                      dataType="dbTimeStamp"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[INTERVALENDUTC]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[INTERVALENDUTC]"
+                      name="INTERVALENDUTC"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[NBLINDTRANSFERRED]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[NBLINDTRANSFERRED]"
+                      length="38"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[NBLINDTRANSFERRED]"
+                      name="NBLINDTRANSFERRED"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[NCONNECTED]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[NCONNECTED]"
+                      length="38"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[NCONNECTED]"
+                      name="NCONNECTED"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[NCONSULT]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[NCONSULT]"
+                      length="38"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[NCONSULT]"
+                      name="NCONSULT"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[NCONSULTTRANSFERRED]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[NCONSULTTRANSFERRED]"
+                      length="38"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[NCONSULTTRANSFERRED]"
+                      name="NCONSULTTRANSFERRED"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      length="1500"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      name="CONVERSATION_AGGREGATE_FLAT_ID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[ORIGINATINGDIRECTION]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[ORIGINATINGDIRECTION]"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[ORIGINATINGDIRECTION]"
+                      name="ORIGINATINGDIRECTION"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[DIRECTION]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[DIRECTION]"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[DIRECTION]"
+                      name="DIRECTION"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[MEDIATYPE]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[MEDIATYPE]"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[MEDIATYPE]"
+                      name="MEDIATYPE"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[QUEUEID]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[QUEUEID]"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[QUEUEID]"
+                      name="QUEUEID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[SKILLID]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[SKILLID]"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[SKILLID]"
+                      name="SKILLID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[LANGUAGEID]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[LANGUAGEID]"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[LANGUAGEID]"
+                      name="LANGUAGEID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[PURPOSE]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[PURPOSE]"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[PURPOSE]"
+                      name="PURPOSE"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[ANI]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[ANI]"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[ANI]"
+                      name="ANI"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[DW_CREATE_DT]"
+                      dataType="dbTimeStamp"
+                      name="DW_CREATE_DT" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[DW_LAST_MODIFY_DT]"
+                      dataType="dbTimeStamp"
+                      name="DW_LAST_MODIFY_DT" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[CONVERSATIONID]"
+                      dataType="wstr"
+                      length="200"
+                      name="CONVERSATIONID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[SESSIONID]"
+                      dataType="wstr"
+                      length="200"
+                      name="SESSIONID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[DISCONNECTTYPE]"
+                      dataType="wstr"
+                      length="32"
+                      name="DISCONNECTTYPE" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[USERID]"
+                      dataType="wstr"
+                      length="200"
+                      name="USERID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[INTERVALBEGINUTC]"
+                      dataType="dbTimeStamp"
+                      name="INTERVALBEGINUTC" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[INTERVALENDUTC]"
+                      dataType="dbTimeStamp"
+                      name="INTERVALENDUTC" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[NBLINDTRANSFERRED]"
+                      dataType="wstr"
+                      length="38"
+                      name="NBLINDTRANSFERRED" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[NCONNECTED]"
+                      dataType="wstr"
+                      length="38"
+                      name="NCONNECTED" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[NCONSULT]"
+                      dataType="wstr"
+                      length="38"
+                      name="NCONSULT" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[NCONSULTTRANSFERRED]"
+                      dataType="wstr"
+                      length="38"
+                      name="NCONSULTTRANSFERRED" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      dataType="wstr"
+                      length="1500"
+                      name="CONVERSATION_AGGREGATE_FLAT_ID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[ORIGINATINGDIRECTION]"
+                      dataType="wstr"
+                      length="32"
+                      name="ORIGINATINGDIRECTION" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[DIRECTION]"
+                      dataType="wstr"
+                      length="32"
+                      name="DIRECTION" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[MEDIATYPE]"
+                      dataType="wstr"
+                      length="32"
+                      name="MEDIATYPE" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[QUEUEID]"
+                      dataType="wstr"
+                      length="200"
+                      name="QUEUEID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[SKILLID]"
+                      dataType="wstr"
+                      length="200"
+                      name="SKILLID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[LANGUAGEID]"
+                      dataType="wstr"
+                      length="200"
+                      name="LANGUAGEID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[PURPOSE]"
+                      dataType="wstr"
+                      length="32"
+                      name="PURPOSE" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].ExternalColumns[ANI]"
+                      dataType="wstr"
+                      length="200"
+                      name="ANI" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      dataType="wstr"
+                      length="1500"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      name="CONVERSATION_AGGREGATE_FLAT_ID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[CONVERSATIONID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[CONVERSATIONID]"
+                      name="CONVERSATIONID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[SESSIONID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[SESSIONID]"
+                      name="SESSIONID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[ORIGINATINGDIRECTION]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[ORIGINATINGDIRECTION]"
+                      name="ORIGINATINGDIRECTION" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[DIRECTION]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[DIRECTION]"
+                      name="DIRECTION" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[DISCONNECTTYPE]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[DISCONNECTTYPE]"
+                      name="DISCONNECTTYPE" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[MEDIATYPE]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[MEDIATYPE]"
+                      name="MEDIATYPE" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[USERID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[USERID]"
+                      name="USERID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[QUEUEID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[QUEUEID]"
+                      name="QUEUEID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[SKILLID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[SKILLID]"
+                      name="SKILLID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[LANGUAGEID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[LANGUAGEID]"
+                      name="LANGUAGEID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[PURPOSE]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[PURPOSE]"
+                      name="PURPOSE" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[ANI]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[ANI]"
+                      name="ANI" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[INTERVALBEGINUTC]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[INTERVALBEGINUTC]"
+                      name="INTERVALBEGINUTC" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[INTERVALENDUTC]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[INTERVALENDUTC]"
+                      name="INTERVALENDUTC" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[NBLINDTRANSFERRED]"
+                      dataType="wstr"
+                      length="38"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[NBLINDTRANSFERRED]"
+                      name="NBLINDTRANSFERRED" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[NCONNECTED]"
+                      dataType="wstr"
+                      length="38"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[NCONNECTED]"
+                      name="NCONNECTED" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[NCONSULT]"
+                      dataType="wstr"
+                      length="38"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[NCONSULT]"
+                      name="NCONSULT" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[NCONSULTTRANSFERRED]"
+                      dataType="wstr"
+                      length="38"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[NCONSULTTRANSFERRED]"
+                      name="NCONSULTTRANSFERRED" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[DW_CREATE_DT]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[DW_CREATE_DT]"
+                      name="DW_CREATE_DT" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[DW_LAST_MODIFY_DT]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[DW_LAST_MODIFY_DT]"
+                      name="DW_LAST_MODIFY_DT" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
+              name="Get Derived Column Data"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Outputs[Derived Column Output].Columns[LastChangeTimestamp]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="19"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Outputs[Derived Column Output].Columns[LastChangeTimestamp]"
+                      name="LastChangeTimestamp"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">@[User::StartTime]</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">@[User::StartTime]</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Outputs[Derived Column Output].Columns[LastChangeUser]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="40"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Outputs[Derived Column Output].Columns[LastChangeUser]"
+                      name="LastChangeUser"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">@[System::PackageName]</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">@[System::PackageName]</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Upsert ConversationAggregateFlat Data\Insert Row Count"
+              componentClassID="Microsoft.RowCount"
+              contactInfo="Row Count;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Counts rows as they pass through a data flow. For example, use the number of rows processed to determine whether or not to perform cleanup operations, or update text in an e-mail message to communicate processing status."
+              name="Insert Row Count">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable to hold the row count."
+                  name="VariableName">User::InsertRowCount</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\Upsert ConversationAggregateFlat Data\Insert Row Count.Inputs[Row Count Input 1]"
+                  hasSideEffects="true"
+                  name="Row Count Input 1">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Upsert ConversationAggregateFlat Data\Insert Row Count.Outputs[Row Count Output 1]"
+                  name="Row Count Output 1"
+                  synchronousInputId="Package\Upsert ConversationAggregateFlat Data\Insert Row Count.Inputs[Row Count Input 1]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Upsert ConversationAggregateFlat Data\Update Row Count"
+              componentClassID="Microsoft.RowCount"
+              contactInfo="Row Count;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Counts rows as they pass through a data flow. For example, use the number of rows processed to determine whether or not to perform cleanup operations, or update text in an e-mail message to communicate processing status."
+              name="Update Row Count">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable to hold the row count."
+                  name="VariableName">User::UpdateRowCount</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\Upsert ConversationAggregateFlat Data\Update Row Count.Inputs[Row Count Input 1]"
+                  hasSideEffects="true"
+                  name="Row Count Input 1">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Upsert ConversationAggregateFlat Data\Update Row Count.Outputs[Row Count Output 1]"
+                  name="Row Count Output 1"
+                  synchronousInputId="Package\Upsert ConversationAggregateFlat Data\Update Row Count.Inputs[Row Count Input 1]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete)"
+              componentClassID="Microsoft.ManagedComponentHost"
+              contactInfo="Upsert Destination (Insert, Update, Delete); ZappySys LLC (c) All Rights Reserved; SSIS PowerPack; http://www.zappysys.com/support"
+              description="Upsert destination can be used for bulk insert / update / delete (i.e. Merge) based on matching source and target records in MS SQL Server, PostgreSql, Amazon Redshift database."
+              name="Upsert Destination (Insert, Update, Delete)"
+              usesDispositions="true"
+              version="3">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="LoggingMode determines how much information is logged during Package Execution. Set Logging mode to Debugging for maximum log."
+                  expressionType="Notify"
+                  name="LoggingMode"
+                  typeConverter="ZappySys.PowerPack.Common.LoggingMode">0</property>
+                <property
+                  dataType="System.Boolean"
+                  description="When you enable this property it will prefix timestamp before Log messages."
+                  expressionType="Notify"
+                  name="PrefixTimestamp">false</property>
+                <property
+                  dataType="System.Null"
+                  expressionType="Notify"
+                  name="SelfRef"
+                  typeConverter="NOTBROWSABLE" />
+                <property
+                  dataType="System.Boolean"
+                  description="Enable / Disable Response Output. Checking this option can remove unwanted warnings about unused Columns and many times speedup performance so if output is not needed set this option to True so its removed."
+                  name="DoNotCreateOutputs">false</property>
+                <property
+                  dataType="System.String"
+                  description="Target table name where you like insert, update or delete records"
+                  expressionType="Notify"
+                  name="TableName"
+                  typeConverter="ZappySys.PowerPack.Converters.TableEditor,ZappySys.PowerPack130.UI,Version=1.0.0.0,Culture=neutral,PublicKeyToken=1903265a93eae502">[genesys].[ConversationAggregateFlat]</property>
+                <property
+                  dataType="System.Int32"
+                  description="Commit batch size (0=Commit once all source rows are consumed). You can Change Batch Size to commit in smaller chunks too if error handling needed."
+                  expressionType="Notify"
+                  name="BatchSize">500000</property>
+                <property
+                  dataType="System.Int32"
+                  description="Action you like to perform (e.g. Upsert, Insert, Update, Delete or Sync)"
+                  expressionType="Notify"
+                  name="Action"
+                  typeConverter="ZappySys.Common.Data.MergeMode">0</property>
+                <property
+                  dataType="System.Boolean"
+                  description="INSERT source rows to target if they don't exist in target table (Only for Sync or Upsert Action)"
+                  expressionType="Notify"
+                  name="EnableInsert">true</property>
+                <property
+                  dataType="System.Boolean"
+                  description="UPDATE source rows to target if they exist in target table (Only for Sync or Upsert Action)"
+                  expressionType="Notify"
+                  name="EnableUpdate">true</property>
+                <property
+                  dataType="System.Boolean"
+                  description="DELETE target rows if missing in source (Only for Sync or Upsert Action)"
+                  expressionType="Notify"
+                  name="EnableDelete">false</property>
+                <property
+                  dataType="System.String"
+                  description="User defined Temp table to hold source result before final merge. This table is truncated before each data load. Unlike auto temp table, custom temp table is not dropped after process is finished."
+                  expressionType="Notify"
+                  name="CustomTempTableName"></property>
+                <property
+                  dataType="System.String"
+                  description="SQL command you like to execute after source data is loaded into temp table. For example you can use this option to issue Custom SQL to delete duplicate rows from Staging Table right before final merge. This command is executed before issuing final merge on target table. Along with variable placeholders, you can also use special placeholders [%target_table%], [%temp_table%] and [%target_keys%]"
+                  expressionType="Notify"
+                  name="TempPostExecuteCommand"></property>
+                <property
+                  dataType="System.String"
+                  description="SQL command you like to execute before starting load in target table (e.g. DROP INDEX on target). Along with variable placeholders, you can also use special placeholders [%target_table%], [%temp_table%] and [%target_keys%]"
+                  expressionType="Notify"
+                  name="PreExecuteCommand"></property>
+                <property
+                  dataType="System.String"
+                  description="SQL command you like to execute at the end once target table is update (e.g. REBUILD or CREATE INDEX on target table). Along with variable placeholders, you can also use special placeholders [%target_table%], [%temp_table%] and [%target_keys%]"
+                  expressionType="Notify"
+                  name="PostExecuteCommand"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies what to do if you encounter duplicate records in source data. You can use first row in the group or keep last row or throw error."
+                  expressionType="Notify"
+                  name="DuplicateRemovalMode"
+                  typeConverter="ZappySys.Common.Data.DuplicateRemovalMode">0</property>
+                <property
+                  dataType="System.String"
+                  name="UserComponentTypeName">ZappySys.UpsertDestination</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Connections[DB-CONNECTION]"
+                  connectionManagerID="{B7B64757-40A9-4F9A-8B2C-A679A7618110}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ADO.STG_TargetDB]"
+                  description="Connection for this component"
+                  name="DB-CONNECTION" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput]"
+                  errorRowDisposition="RedirectRow"
+                  hasSideEffects="true"
+                  name="UpsertDestinationInput"
+                  truncationRowDisposition="RedirectRow">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      cachedDataType="wstr"
+                      cachedLength="1500"
+                      cachedName="CONVERSATION_AGGREGATE_FLAT_ID"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      name="CONVERSATION_AGGREGATE_FLAT_ID" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[CONVERSATIONID]"
+                      cachedDataType="wstr"
+                      cachedLength="200"
+                      cachedName="CONVERSATIONID"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[CONVERSATIONID]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[CONVERSATIONID]"
+                      name="CONVERSATIONID" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[SESSIONID]"
+                      cachedDataType="wstr"
+                      cachedLength="200"
+                      cachedName="SESSIONID"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[SESSIONID]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[SESSIONID]"
+                      name="SESSIONID" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[ORIGINATINGDIRECTION]"
+                      cachedDataType="wstr"
+                      cachedLength="32"
+                      cachedName="ORIGINATINGDIRECTION"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[ORIGINATINGDIRECTION]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[ORIGINATINGDIRECTION]"
+                      name="ORIGINATINGDIRECTION" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[DIRECTION]"
+                      cachedDataType="wstr"
+                      cachedLength="32"
+                      cachedName="DIRECTION"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[DIRECTION]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[DIRECTION]"
+                      name="DIRECTION" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[DISCONNECTTYPE]"
+                      cachedDataType="wstr"
+                      cachedLength="32"
+                      cachedName="DISCONNECTTYPE"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[DISCONNECTTYPE]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[DISCONNECTTYPE]"
+                      name="DISCONNECTTYPE" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[MEDIATYPE]"
+                      cachedDataType="wstr"
+                      cachedLength="32"
+                      cachedName="MEDIATYPE"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[MEDIATYPE]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[MEDIATYPE]"
+                      name="MEDIATYPE" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[USERID]"
+                      cachedDataType="wstr"
+                      cachedLength="200"
+                      cachedName="USERID"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[USERID]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[USERID]"
+                      name="USERID" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[QUEUEID]"
+                      cachedDataType="wstr"
+                      cachedLength="200"
+                      cachedName="QUEUEID"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[QUEUEID]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[QUEUEID]"
+                      name="QUEUEID" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[SKILLID]"
+                      cachedDataType="wstr"
+                      cachedLength="200"
+                      cachedName="SKILLID"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[SKILLID]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[SKILLID]"
+                      name="SKILLID" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[LANGUAGEID]"
+                      cachedDataType="wstr"
+                      cachedLength="200"
+                      cachedName="LANGUAGEID"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[LANGUAGEID]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[LANGUAGEID]"
+                      name="LANGUAGEID" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[PURPOSE]"
+                      cachedDataType="wstr"
+                      cachedLength="32"
+                      cachedName="PURPOSE"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[PURPOSE]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[PURPOSE]"
+                      name="PURPOSE" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[ANI]"
+                      cachedDataType="wstr"
+                      cachedLength="200"
+                      cachedName="ANI"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[ANI]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[ANI]"
+                      name="ANI" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[INTERVALBEGINUTC]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="INTERVALBEGINUTC"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[INTERVALBEGINUTC]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[INTERVALBEGINUTC]"
+                      name="INTERVALBEGINUTC" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[INTERVALENDUTC]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="INTERVALENDUTC"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[INTERVALENDUTC]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[INTERVALENDUTC]"
+                      name="INTERVALENDUTC" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[NBLINDTRANSFERRED]"
+                      cachedDataType="wstr"
+                      cachedLength="38"
+                      cachedName="NBLINDTRANSFERRED"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[NBLINDTRANSFERRED]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[NBLINDTRANSFERRED]"
+                      name="NBLINDTRANSFERRED" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[NCONNECTED]"
+                      cachedDataType="wstr"
+                      cachedLength="38"
+                      cachedName="NCONNECTED"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[NCONNECTED]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[NCONNECTED]"
+                      name="NCONNECTED" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[NCONSULT]"
+                      cachedDataType="wstr"
+                      cachedLength="38"
+                      cachedName="NCONSULT"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[NCONSULT]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[NCONSULT]"
+                      name="NCONSULT" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[NCONSULTTRANSFERRED]"
+                      cachedDataType="wstr"
+                      cachedLength="38"
+                      cachedName="NCONSULTTRANSFERRED"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[NCONSULTTRANSFERRED]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[NCONSULTTRANSFERRED]"
+                      name="NCONSULTTRANSFERRED" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[DW_CREATE_DT]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="DW_CREATE_DT"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[DW_CREATE_DT]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[DW_CREATE_DT]"
+                      name="DW_CREATE_DT" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[DW_LAST_MODIFY_DT]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="DW_LAST_MODIFY_DT"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[DW_LAST_MODIFY_DT]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output].Columns[DW_LAST_MODIFY_DT]"
+                      name="DW_LAST_MODIFY_DT" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[LastChangeTimestamp]"
+                      cachedDataType="wstr"
+                      cachedLength="19"
+                      cachedName="LastChangeTimestamp"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[LastChangeTimestamp]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Outputs[Derived Column Output].Columns[LastChangeTimestamp]"
+                      name="LastChangeTimestamp" />
+                    <inputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[LastChangeUser]"
+                      cachedDataType="wstr"
+                      cachedLength="40"
+                      cachedName="LastChangeUser"
+                      externalMetadataColumnId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[LastChangeUser]"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Outputs[Derived Column Output].Columns[LastChangeUser]"
+                      name="LastChangeUser" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      dataType="wstr"
+                      length="450"
+                      name="CONVERSATION_AGGREGATE_FLAT_ID">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Primary Key Column for this table"
+                          expressionType="Notify"
+                          name="IsKey">true</property>
+                      </properties>
+                    </externalMetadataColumn>
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[CONVERSATIONID]"
+                      dataType="wstr"
+                      length="200"
+                      name="CONVERSATIONID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[SESSIONID]"
+                      dataType="wstr"
+                      length="200"
+                      name="SESSIONID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[ORIGINATINGDIRECTION]"
+                      dataType="wstr"
+                      length="32"
+                      name="ORIGINATINGDIRECTION" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[DIRECTION]"
+                      dataType="wstr"
+                      length="32"
+                      name="DIRECTION" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[DISCONNECTTYPE]"
+                      dataType="wstr"
+                      length="32"
+                      name="DISCONNECTTYPE" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[MEDIATYPE]"
+                      dataType="wstr"
+                      length="32"
+                      name="MEDIATYPE" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[USERID]"
+                      dataType="wstr"
+                      length="200"
+                      name="USERID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[QUEUEID]"
+                      dataType="wstr"
+                      length="200"
+                      name="QUEUEID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[SKILLID]"
+                      dataType="wstr"
+                      length="200"
+                      name="SKILLID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[LANGUAGEID]"
+                      dataType="wstr"
+                      length="200"
+                      name="LANGUAGEID" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[PURPOSE]"
+                      dataType="wstr"
+                      length="32"
+                      name="PURPOSE" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[ANI]"
+                      dataType="wstr"
+                      length="200"
+                      name="ANI" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[INTERVALBEGINUTC]"
+                      dataType="dbTimeStamp"
+                      name="INTERVALBEGINUTC" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[INTERVALENDUTC]"
+                      dataType="dbTimeStamp"
+                      name="INTERVALENDUTC" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[NBLINDTRANSFERRED]"
+                      dataType="i4"
+                      name="NBLINDTRANSFERRED" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[NCONNECTED]"
+                      dataType="i4"
+                      name="NCONNECTED" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[NCONSULT]"
+                      dataType="i4"
+                      name="NCONSULT" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[NCONSULTTRANSFERRED]"
+                      dataType="i4"
+                      name="NCONSULTTRANSFERRED" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[DW_CREATE_DT]"
+                      dataType="dbTimeStamp"
+                      name="DW_CREATE_DT" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[DW_LAST_MODIFY_DT]"
+                      dataType="dbTimeStamp"
+                      name="DW_LAST_MODIFY_DT" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[LastChangeTimestamp]"
+                      dataType="dbTimeStamp"
+                      name="LastChangeTimestamp" />
+                    <externalMetadataColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[LastChangeUser]"
+                      dataType="wstr"
+                      length="100"
+                      name="LastChangeUser" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output]"
+                  isErrorOut="true"
+                  name="UpsertDestination Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorColumnName]"
+                      codePage="1252"
+                      dataType="str"
+                      length="128"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorColumnName]"
+                      name="ErrorColumnName" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorMessage]"
+                      dataType="wstr"
+                      length="1024"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorMessage]"
+                      name="ErrorMessage" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      dataType="wstr"
+                      length="450"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      name="CONVERSATION_AGGREGATE_FLAT_ID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[CONVERSATIONID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[CONVERSATIONID]"
+                      name="CONVERSATIONID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[SESSIONID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[SESSIONID]"
+                      name="SESSIONID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ORIGINATINGDIRECTION]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ORIGINATINGDIRECTION]"
+                      name="ORIGINATINGDIRECTION" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[DIRECTION]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[DIRECTION]"
+                      name="DIRECTION" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[DISCONNECTTYPE]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[DISCONNECTTYPE]"
+                      name="DISCONNECTTYPE" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[MEDIATYPE]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[MEDIATYPE]"
+                      name="MEDIATYPE" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[USERID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[USERID]"
+                      name="USERID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[QUEUEID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[QUEUEID]"
+                      name="QUEUEID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[SKILLID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[SKILLID]"
+                      name="SKILLID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[LANGUAGEID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[LANGUAGEID]"
+                      name="LANGUAGEID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[PURPOSE]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[PURPOSE]"
+                      name="PURPOSE" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ANI]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ANI]"
+                      name="ANI" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[INTERVALBEGINUTC]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[INTERVALBEGINUTC]"
+                      name="INTERVALBEGINUTC" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[INTERVALENDUTC]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[INTERVALENDUTC]"
+                      name="INTERVALENDUTC" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[NBLINDTRANSFERRED]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[NBLINDTRANSFERRED]"
+                      name="NBLINDTRANSFERRED" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[NCONNECTED]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[NCONNECTED]"
+                      name="NCONNECTED" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[NCONSULT]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[NCONSULT]"
+                      name="NCONSULT" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[NCONSULTTRANSFERRED]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[NCONSULTTRANSFERRED]"
+                      name="NCONSULTTRANSFERRED" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[DW_CREATE_DT]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[DW_CREATE_DT]"
+                      name="DW_CREATE_DT" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[DW_LAST_MODIFY_DT]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[DW_LAST_MODIFY_DT]"
+                      name="DW_LAST_MODIFY_DT" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[LastChangeTimestamp]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[LastChangeTimestamp]"
+                      name="LastChangeTimestamp" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[LastChangeUser]"
+                      dataType="wstr"
+                      length="100"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[LastChangeUser]"
+                      name="LastChangeUser" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output]"
+                  name="New Records Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      dataType="wstr"
+                      length="450"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      name="CONVERSATION_AGGREGATE_FLAT_ID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[CONVERSATIONID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[CONVERSATIONID]"
+                      name="CONVERSATIONID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[SESSIONID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[SESSIONID]"
+                      name="SESSIONID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[ORIGINATINGDIRECTION]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[ORIGINATINGDIRECTION]"
+                      name="ORIGINATINGDIRECTION" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[DIRECTION]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[DIRECTION]"
+                      name="DIRECTION" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[DISCONNECTTYPE]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[DISCONNECTTYPE]"
+                      name="DISCONNECTTYPE" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[MEDIATYPE]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[MEDIATYPE]"
+                      name="MEDIATYPE" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[USERID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[USERID]"
+                      name="USERID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[QUEUEID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[QUEUEID]"
+                      name="QUEUEID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[SKILLID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[SKILLID]"
+                      name="SKILLID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[LANGUAGEID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[LANGUAGEID]"
+                      name="LANGUAGEID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[PURPOSE]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[PURPOSE]"
+                      name="PURPOSE" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[ANI]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[ANI]"
+                      name="ANI" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[INTERVALBEGINUTC]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[INTERVALBEGINUTC]"
+                      name="INTERVALBEGINUTC" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[INTERVALENDUTC]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[INTERVALENDUTC]"
+                      name="INTERVALENDUTC" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[NBLINDTRANSFERRED]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[NBLINDTRANSFERRED]"
+                      name="NBLINDTRANSFERRED" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[NCONNECTED]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[NCONNECTED]"
+                      name="NCONNECTED" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[NCONSULT]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[NCONSULT]"
+                      name="NCONSULT" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[NCONSULTTRANSFERRED]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[NCONSULTTRANSFERRED]"
+                      name="NCONSULTTRANSFERRED" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[DW_CREATE_DT]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[DW_CREATE_DT]"
+                      name="DW_CREATE_DT" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[DW_LAST_MODIFY_DT]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[DW_LAST_MODIFY_DT]"
+                      name="DW_LAST_MODIFY_DT" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[LastChangeTimestamp]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[LastChangeTimestamp]"
+                      name="LastChangeTimestamp" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[LastChangeUser]"
+                      dataType="wstr"
+                      length="100"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[LastChangeUser]"
+                      name="LastChangeUser" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output]"
+                  name="Updated Records Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      dataType="wstr"
+                      length="450"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[CONVERSATION_AGGREGATE_FLAT_ID]"
+                      name="CONVERSATION_AGGREGATE_FLAT_ID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[CONVERSATIONID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[CONVERSATIONID]"
+                      name="CONVERSATIONID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[SESSIONID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[SESSIONID]"
+                      name="SESSIONID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[ORIGINATINGDIRECTION]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[ORIGINATINGDIRECTION]"
+                      name="ORIGINATINGDIRECTION" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[DIRECTION]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[DIRECTION]"
+                      name="DIRECTION" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[DISCONNECTTYPE]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[DISCONNECTTYPE]"
+                      name="DISCONNECTTYPE" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[MEDIATYPE]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[MEDIATYPE]"
+                      name="MEDIATYPE" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[USERID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[USERID]"
+                      name="USERID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[QUEUEID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[QUEUEID]"
+                      name="QUEUEID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[SKILLID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[SKILLID]"
+                      name="SKILLID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[LANGUAGEID]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[LANGUAGEID]"
+                      name="LANGUAGEID" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[PURPOSE]"
+                      dataType="wstr"
+                      length="32"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[PURPOSE]"
+                      name="PURPOSE" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[ANI]"
+                      dataType="wstr"
+                      length="200"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[ANI]"
+                      name="ANI" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[INTERVALBEGINUTC]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[INTERVALBEGINUTC]"
+                      name="INTERVALBEGINUTC" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[INTERVALENDUTC]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[INTERVALENDUTC]"
+                      name="INTERVALENDUTC" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[NBLINDTRANSFERRED]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[NBLINDTRANSFERRED]"
+                      name="NBLINDTRANSFERRED" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[NCONNECTED]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[NCONNECTED]"
+                      name="NCONNECTED" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[NCONSULT]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[NCONSULT]"
+                      name="NCONSULT" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[NCONSULTTRANSFERRED]"
+                      dataType="i4"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[NCONSULTTRANSFERRED]"
+                      name="NCONSULTTRANSFERRED" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[DW_CREATE_DT]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[DW_CREATE_DT]"
+                      name="DW_CREATE_DT" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[DW_LAST_MODIFY_DT]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[DW_LAST_MODIFY_DT]"
+                      name="DW_LAST_MODIFY_DT" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[LastChangeTimestamp]"
+                      dataType="dbTimeStamp"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[LastChangeTimestamp]"
+                      name="LastChangeTimestamp" />
+                    <outputColumn
+                      refId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[LastChangeUser]"
+                      dataType="wstr"
+                      length="100"
+                      lineageId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[LastChangeUser]"
+                      name="LastChangeUser" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\Upsert ConversationAggregateFlat Data.Paths[Derived Column Output]"
+              endId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput]"
+              name="Derived Column Output"
+              startId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\Upsert ConversationAggregateFlat Data.Paths[Derived Column Output1]"
+              endId="Package\Upsert ConversationAggregateFlat Data\Failed Records.Inputs[OLE DB Destination Input]"
+              name="Derived Column Output"
+              startId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\Upsert ConversationAggregateFlat Data.Paths[New Records Output]"
+              endId="Package\Upsert ConversationAggregateFlat Data\Insert Row Count.Inputs[Row Count Input 1]"
+              name="New Records Output"
+              startId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output]" />
+            <path
+              refId="Package\Upsert ConversationAggregateFlat Data.Paths[OLE DB Source Output]"
+              endId="Package\Upsert ConversationAggregateFlat Data\Extract Row Count.Inputs[Row Count Input 1]"
+              name="OLE DB Source Output"
+              startId="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data.Outputs[OLE DB Source Output]" />
+            <path
+              refId="Package\Upsert ConversationAggregateFlat Data.Paths[Row Count Output 1]"
+              endId="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data.Inputs[Derived Column Input]"
+              name="Row Count Output 1"
+              startId="Package\Upsert ConversationAggregateFlat Data\Extract Row Count.Outputs[Row Count Output 1]" />
+            <path
+              refId="Package\Upsert ConversationAggregateFlat Data.Paths[Updated Records Output]"
+              endId="Package\Upsert ConversationAggregateFlat Data\Update Row Count.Inputs[Row Count Input 1]"
+              name="Updated Records Output"
+              startId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output]" />
+            <path
+              refId="Package\Upsert ConversationAggregateFlat Data.Paths[UpsertDestination Error Output]"
+              endId="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records.Inputs[Derived Column Input]"
+              name="UpsertDestination Error Output"
+              startId="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{7DA5D943-A81B-4A61-93B0-F9B6803D6284}"
+      DTS:From="Package\Log Job Start"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\Insert ConversationAggregateFlat Audit Data" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 18]"
+      DTS:CreationName=""
+      DTS:DTSID="{A8E11985-410C-4BFB-B530-D0D3CAD65357}"
+      DTS:From="Package\Upsert ConversationAggregateFlat Data"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 18"
+      DTS:To="Package\Get Final ConversationAggregateFlat Max Load Date and Row Count" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 19]"
+      DTS:CreationName=""
+      DTS:DTSID="{CC94F740-6D71-4273-963D-046C433E3002}"
+      DTS:From="Package\Update ConversationAggregateFlat Audit Data"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 19"
+      DTS:To="Package\Log Job End" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 28]"
+      DTS:CreationName=""
+      DTS:DTSID="{00B3105A-EDCC-4319-B182-9A1FF5B0FC83}"
+      DTS:From="Package\Get Final ConversationAggregateFlat Max Load Date and Row Count"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 28"
+      DTS:To="Package\Delete ConversationAggregateFlat Rows &gt; 25 Months Old" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 3]"
+      DTS:CreationName=""
+      DTS:DTSID="{D390807D-63FF-43E1-98C2-BD4FA29F7962}"
+      DTS:From="Package\Insert ConversationAggregateFlat Audit Data"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 3"
+      DTS:To="Package\Get ConversationAggregateFlat Max Load Start Date and Row Count" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 32]"
+      DTS:CreationName=""
+      DTS:DTSID="{6A12737F-F9F0-4005-BC87-AC9C918E934F}"
+      DTS:From="Package\Delete ConversationAggregateFlat Rows &gt; 25 Months Old"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 32"
+      DTS:To="Package\Update ConversationAggregateFlat Audit Data" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 5]"
+      DTS:CreationName=""
+      DTS:DTSID="{8EA6C386-69CF-4BFB-B13A-1B34037BD568}"
+      DTS:From="Package\Get ConversationAggregateFlat Max Load Start Date and Row Count"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 5"
+      DTS:To="Package\Upsert ConversationAggregateFlat Data" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="362,42"
+          Id="Package\Delete ConversationAggregateFlat Rows &gt; 25 Months Old"
+          TopLeft="30.0000000000001,515.5" />
+        <NodeLayout
+          Size="416,42"
+          Id="Package\Get ConversationAggregateFlat Max Load Start Date and Row Count"
+          TopLeft="5.50000000000003,209.5" />
+        <NodeLayout
+          Size="416,42"
+          Id="Package\Get Final ConversationAggregateFlat Max Load Date and Row Count"
+          TopLeft="5.50000000000003,413.5" />
+        <NodeLayout
+          Size="298,42"
+          Id="Package\Insert ConversationAggregateFlat Audit Data"
+          TopLeft="60.5,107.5" />
+        <NodeLayout
+          Size="141.333333333334,42"
+          Id="Package\Log Job End"
+          TopLeft="142.5,720.5" />
+        <NodeLayout
+          Size="144,42"
+          Id="Package\Log Job Start"
+          TopLeft="135.5,5.5" />
+        <NodeLayout
+          Size="306,42"
+          Id="Package\Update ConversationAggregateFlat Audit Data"
+          TopLeft="57.5000000000001,617.5" />
+        <NodeLayout
+          Size="274.666666666667,42"
+          Id="Package\Upsert ConversationAggregateFlat Data"
+          TopLeft="73,311.5" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="208.5,47.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 18]"
+          TopLeft="212,353.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 19]"
+          TopLeft="211.75,659.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,61"
+              Start="0,0"
+              End="0,53.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,53.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 28]"
+          TopLeft="212.25,455.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 3]"
+          TopLeft="211.5,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 32]"
+          TopLeft="210.75,557.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 5]"
+          TopLeft="212,251.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\Upsert ConversationAggregateFlat Data">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="146.666666666667,42"
+          Id="Package\Upsert ConversationAggregateFlat Data\Failed Records"
+          TopLeft="48.5000000000001,515.5" />
+        <NodeLayout
+          Size="326,42"
+          Id="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data"
+          TopLeft="224.5,4.5" />
+        <NodeLayout
+          Size="170,42"
+          Id="Package\Upsert ConversationAggregateFlat Data\Extract Row Count"
+          TopLeft="300,107.5" />
+        <NodeLayout
+          Size="282,42"
+          Id="Package\Upsert ConversationAggregateFlat Data\Upsert Destination (Insert, Update, Delete)"
+          TopLeft="242,311.5" />
+        <NodeLayout
+          Size="205.333333333334,42"
+          Id="Package\Upsert ConversationAggregateFlat Data\Get Derived Column Data"
+          TopLeft="283.5,209.5" />
+        <NodeLayout
+          Size="166.666666666667,42"
+          Id="Package\Upsert ConversationAggregateFlat Data\Update Row Count"
+          TopLeft="299.5,413.5" />
+        <NodeLayout
+          Size="161.333333333334,42"
+          Id="Package\Upsert ConversationAggregateFlat Data\Insert Row Count"
+          TopLeft="527.5,413.5" />
+        <NodeLayout
+          Size="233.333333333334,42"
+          Id="Package\Upsert ConversationAggregateFlat Data\Derived Column - Failed Records"
+          TopLeft="5.50000000000006,413.5" />
+        <EdgeLayout
+          Id="Package\Upsert ConversationAggregateFlat Data.Paths[Derived Column Output]"
+          TopLeft="384.5,251.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Upsert ConversationAggregateFlat Data.Paths[UpsertDestination Error Output]"
+          TopLeft="314.5,353.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-192.5,60.0000000000001"
+              Start="0,0"
+              End="-192.5,52.5000000000001">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,16.3747072599532" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,16.3747072599532"
+                    Point2="0,20.3747072599532"
+                    Point3="-4,20.3747072599532" />
+                  <mssgle:LineSegment
+                    End="-188.5,20.3747072599532" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-188.5,20.3747072599532"
+                    Point2="-192.5,20.3747072599532"
+                    Point3="-192.5,24.3747072599532" />
+                  <mssgle:LineSegment
+                    End="-192.5,52.5000000000001" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-165.37033203125,25.3747072599532,138.2406640625,11.43359375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Upsert ConversationAggregateFlat Data.Paths[Updated Records Output]"
+          TopLeft="383,353.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-55.07533203125,20.4453125,110.1506640625,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Upsert ConversationAggregateFlat Data.Paths[Row Count Output 1]"
+          TopLeft="385.5,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Upsert ConversationAggregateFlat Data.Paths[OLE DB Source Output]"
+          TopLeft="386.25,46.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,61"
+              Start="0,0"
+              End="0,53.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,53.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Upsert ConversationAggregateFlat Data.Paths[New Records Output]"
+          TopLeft="451.5,353.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="156.5,60"
+              Start="0,0"
+              End="156.5,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,16.3747072599532" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,16.3747072599532"
+                    Point2="0,20.3747072599532"
+                    Point3="4,20.3747072599532" />
+                  <mssgle:LineSegment
+                    End="152.5,20.3747072599532" />
+                  <mssgle:CubicBezierSegment
+                    Point1="152.5,20.3747072599532"
+                    Point2="156.5,20.3747072599532"
+                    Point3="156.5,24.3747072599532" />
+                  <mssgle:LineSegment
+                    End="156.5,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="32.04361328125,25.3747072599532,92.4127734375,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Upsert ConversationAggregateFlat Data.Paths[Derived Column Output1]"
+          TopLeft="122,455.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Upsert ConversationAggregateFlat Data\Failed Records">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Upsert ConversationAggregateFlat Data\Get ASL (Oracle) ConversationAggregateFlat Data">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

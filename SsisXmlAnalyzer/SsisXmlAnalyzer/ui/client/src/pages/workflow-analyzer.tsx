@@ -782,6 +782,47 @@ export default function WorkflowAnalyzer() {
                             )}
                           </Card>
 
+                          {/* Package-wide referenced tables (all SQL: Execute SQL, Data Flow) */}
+                          {parsedData.packageReferencedTables && parsedData.packageReferencedTables.length > 0 && (
+                            <Card className="mb-6">
+                              <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                  Referenced Tables (package-wide)
+                                  <Badge variant="secondary" className="text-xs">
+                                    {parsedData.packageReferencedTables.length}
+                                  </Badge>
+                                </CardTitle>
+                                <CardDescription>
+                                  Tables detected from all SQL in this package (Execute SQL tasks, Data Flow sources, destinations, Lookup, etc.)
+                                </CardDescription>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                  {parsedData.packageReferencedTables.map((tableRef, idx) => (
+                                    <Badge key={idx} variant="secondary" className="text-xs font-mono break-all cursor-help" title={tableRef.fullName}>
+                                      {tableRef.fullName}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                {parsedData.packageReferencedTablesDetailed && parsedData.packageReferencedTablesDetailed.length > 0 && (
+                                  <div className="border-t border-border pt-4 space-y-2 max-h-64 overflow-y-auto">
+                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Where referenced</p>
+                                    {parsedData.packageReferencedTablesDetailed.map((row, idx) => (
+                                      <div key={idx} className="text-xs border border-border rounded p-2 bg-muted/30">
+                                        <span className="font-mono font-medium text-foreground">{row.table.fullName}</span>
+                                        <ul className="list-disc list-inside mt-1 text-muted-foreground">
+                                          {row.referencedFrom.map((src, j) => (
+                                            <li key={j}>{src}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </CardContent>
+                            </Card>
+                          )}
+
                           {/* Connection Managers */}
                           {parsedData.connectionManagers.length > 0 && (
                             <Card className="mb-6">
@@ -2384,6 +2425,23 @@ function ActivityDetailView({ activity, onBack }: { activity: Activity; onBack: 
                       </div>
                     )}
 
+                    {/* Source Query for Source Components (includes queries resolved from SqlCommandVariable) */}
+                    {component.componentType === 'Source' && component.sourceMetadata?.sourceQuery && (
+                      <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-blue-900 dark:text-blue-100 mb-2">
+                          📋 Source Query
+                          {component.sourceMetadata.sqlCommandVariableRef && (
+                            <span className="ml-2 text-xs font-normal normal-case text-blue-700 dark:text-blue-300">
+                              (from variable: {component.sourceMetadata.sqlCommandVariableRef})
+                            </span>
+                          )}
+                        </p>
+                        <pre className="text-xs font-mono text-foreground whitespace-pre-wrap break-words bg-background dark:bg-slate-900 p-3 rounded border border-border max-h-60 overflow-y-auto">
+                          {component.sourceMetadata.sourceQuery}
+                        </pre>
+                      </div>
+                    )}
+
                     {/* Referenced Tables for Source Components */}
                     {component.componentType === 'Source' && component.sourceMetadata?.referencedTables && component.sourceMetadata.referencedTables.length > 0 && (
                       <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md">
@@ -2409,6 +2467,25 @@ function ActivityDetailView({ activity, onBack }: { activity: Activity; onBack: 
                         <div className="flex flex-wrap gap-2">
                           {component.destinationMetadata.referencedTables.map((tableRef, idx) => (
                             <Badge key={idx} variant="secondary" className="text-xs font-mono break-all cursor-help" title={`${tableRef.database ? tableRef.database + '.' : ''}${tableRef.schema ? tableRef.schema + '.' : ''}${tableRef.table}`}>
+                              {tableRef.fullName}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Referenced Tables for Transformations (Lookup SQL, etc.) */}
+                    {component.componentType === 'Transformation' && component.transformationLogic?.referencedTables && component.transformationLogic.referencedTables.length > 0 && (
+                      <div className="mb-3 p-3 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-md">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-100 mb-2">
+                          📊 Referenced Tables ({component.transformationLogic.referencedTables.length})
+                        </p>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          From SQL in this transformation (e.g. Lookup command).
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {component.transformationLogic.referencedTables.map((tableRef, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs font-mono break-all cursor-help" title={tableRef.fullName}>
                               {tableRef.fullName}
                             </Badge>
                           ))}

@@ -266,6 +266,106 @@ def extract_table_references(sql_query: str) -> List[Dict[str, str]]:
         return []
 
 
+def merge_referenced_tables_lists(*lists: List[Optional[List[Dict[str, str]]]]) -> List[Dict[str, str]]:
+    """Merge multiple referenced-table lists, deduplicating by fullName (first occurrence wins)."""
+    seen: Set[str] = set()
+    out: List[Dict[str, str]] = []
+    for lst in lists:
+        for t in (lst or []):
+            if not isinstance(t, dict):
+                continue
+            fn = (t.get('fullName') or '').strip()
+            if not fn or fn in seen:
+                continue
+            seen.add(fn)
+            out.append(t)
+    return out
+
+
+def _sql_text_usable_for_table_extraction(sql: Optional[str]) -> bool:
+    """Skip dynamic placeholders and empty strings when extracting table references."""
+    if not sql or not isinstance(sql, str):
+        return False
+    s = sql.strip()
+    if s.startswith('[Dynamic query'):
+        return False
+    return True
+
+
+def _expression_may_contain_sql_for_tables(expr: str) -> bool:
+    """Heuristic: SSIS expressions are usually not SQL; only scan when SQL-like keywords appear."""
+    if not expr or not isinstance(expr, str) or len(expr) < 12:
+        return False
+    u = expr.upper()
+    if 'SELECT' in u and 'FROM' in u:
+        return True
+    if any(k in u for k in ('INSERT INTO', 'UPDATE ', 'DELETE FROM', 'MERGE ', 'JOIN ')):
+        return True
+    return False
+
+
+def aggregate_package_referenced_tables(activities: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Collect unique table references from all SQL-bearing locations in the package:
+    Execute SQL tasks, Data Flow sources/destinations, and transformations (e.g. Lookup).
+    Returns merged list plus per-table provenance (where each table was referenced).
+    """
+    by_full_name: Dict[str, Dict[str, str]] = {}
+    sources: Dict[str, List[str]] = {}
+
+    def add_tables(tables: Optional[List[Dict[str, str]]], source_desc: str) -> None:
+        for t in tables or []:
+            if not isinstance(t, dict):
+                continue
+            fn = (t.get('fullName') or '').strip()
+            if not fn:
+                continue
+            if fn not in by_full_name:
+                by_full_name[fn] = {
+                    'database': t.get('database') or '',
+                    'schema': t.get('schema') or '',
+                    'table': t.get('table') or '',
+                    'fullName': fn,
+                }
+            if fn not in sources:
+                sources[fn] = []
+            if source_desc not in sources[fn]:
+                sources[fn].append(source_desc)
+
+    for act in activities:
+        aname = act.get('name') or act.get('activityName') or ''
+        atype = act.get('type') or ''
+        stp = act.get('sqlTaskProperties') or {}
+        if stp.get('referencedTables') and len(stp['referencedTables']) > 0:
+            add_tables(stp['referencedTables'], f"Execute SQL: {aname}")
+        elif atype == 'Execute SQL Task':
+            sql = (act.get('sqlCommand') or stp.get('sqlStatementSource') or '').strip()
+            if _sql_text_usable_for_table_extraction(sql):
+                add_tables(extract_table_references(sql), f"Execute SQL: {aname}")
+
+        for comp in act.get('components') or []:
+            cname = comp.get('name') or ''
+            sm = comp.get('sourceMetadata') or {}
+            dm = comp.get('destinationMetadata') or {}
+            tl = comp.get('transformationLogic') or {}
+            if sm.get('referencedTables'):
+                add_tables(sm['referencedTables'], f"Data Flow: {aname} > {cname} (Source)")
+            if dm.get('referencedTables'):
+                add_tables(dm['referencedTables'], f"Data Flow: {aname} > {cname} (Destination)")
+            if tl.get('referencedTables'):
+                add_tables(tl['referencedTables'], f"Data Flow: {aname} > {cname} (Transformation)")
+
+    merged = sorted(by_full_name.values(), key=lambda x: (x.get('fullName') or '').lower())
+    detailed = [
+        {'table': by_full_name[fn], 'referencedFrom': sources.get(fn, [])}
+        for fn in sorted(by_full_name.keys(), key=lambda s: s.lower())
+    ]
+    return {
+        'packageReferencedTables': merged,
+        'packageReferencedTablesDetailed': detailed,
+    }
+
+
 def extract_attribute(element, attr_name: str, default: str = "") -> str:
     """Extract attribute value from element with namespace handling."""
     value = element.get(f"{{www.microsoft.com/SqlServer/Dts}}{attr_name}")
@@ -306,6 +406,7 @@ def parse_variables(root) -> List[Dict[str, Any]]:
     """
     FR-2: Extract package and task variables from the DTSX package.
     Returns list of variables with Name, DataType, Default Value (and Namespace).
+    Enhanced to extract full VariableValue text (for SQL queries), EvaluateAsExpression, and Expression.
     """
     variables = []
     # Find all DTS:Variable elements (package-level and nested under Executables)
@@ -324,17 +425,84 @@ def parse_variables(root) -> List[Dict[str, Any]]:
         default_value = extract_attribute(var_elem, 'Value')
         if not default_value:
             val_elem = var_elem.find('.//DTS:VariableValue', DTS_NAMESPACE)
-            if val_elem is not None and val_elem.text:
-                default_value = val_elem.text
+            if val_elem is not None:
+                # Use full text content (itertext) for multi-line values like SQL queries
+                full_text = ''.join(val_elem.itertext()).strip() if hasattr(val_elem, 'itertext') else (val_elem.text or '')
+                default_value = full_text.strip() if isinstance(full_text, str) else (val_elem.text or '')
         expression = extract_attribute(var_elem, 'Expression')
+        evaluate_as_expr = extract_attribute(var_elem, 'EvaluateAsExpression', 'False').lower() == 'true'
         variables.append({
             'name': name,
             'namespace': namespace or 'User',
             'dataType': data_type,
             'defaultValue': default_value or '',
-            'expression': expression or ''
+            'expression': expression or '',
+            'evaluateAsExpression': evaluate_as_expr,
         })
     return variables
+
+
+def build_variable_lookup(variables: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    """
+    Build a lookup dict for variable resolution.
+    Key: "Namespace::Name" (e.g. "User::Qry"), Value: variable dict.
+    Later definitions (deeper in hierarchy) override earlier - supports container-level variables.
+    """
+    lookup: Dict[str, Dict[str, Any]] = {}
+    for var in variables:
+        ns = var.get('namespace', 'User') or 'User'
+        name = var.get('name', '')
+        if name:
+            key = f"{ns}::{name}"
+            lookup[key] = var
+    return lookup
+
+
+def resolve_sql_from_variable(
+    variable_ref: str,
+    variable_lookup: Dict[str, Dict[str, Any]]
+) -> tuple:
+    """
+    Resolve SqlCommandVariable reference (e.g. "User::Qry") to actual SQL query.
+    Returns (resolved_sql: str or None, is_dynamic: bool, source_info: dict).
+    - resolved_sql: The SQL when available (from defaultValue/design-time value); None if unresolved
+    - is_dynamic: True when variable uses expression and we cannot fully evaluate at parse time
+    - source_info: Metadata about the variable (variableRef, evaluateAsExpression, etc.)
+    """
+    if not variable_ref or not variable_ref.strip() or not variable_lookup:
+        return (None, False, {})
+    ref = variable_ref.strip()
+    # Try exact match first
+    var = variable_lookup.get(ref)
+    if not var:
+        # Try case-insensitive match
+        ref_lower = ref.lower()
+        for k, v in variable_lookup.items():
+            if k.lower() == ref_lower:
+                var = v
+                break
+    if not var:
+        return (None, False, {'variableRef': ref, 'resolved': False, 'reason': 'Variable not found'})
+    source_info = {
+        'variableRef': ref,
+        'variableName': var.get('name'),
+        'namespace': var.get('namespace'),
+        'evaluateAsExpression': var.get('evaluateAsExpression', False),
+    }
+    default_val = (var.get('defaultValue') or '').strip()
+    is_dynamic = var.get('evaluateAsExpression', False)
+    if default_val:
+        # Use design-time/default value (SSIS stores evaluated value in VariableValue)
+        source_info['resolved'] = True
+        source_info['resolutionType'] = 'design_time_value' if is_dynamic else 'static_value'
+        return (default_val, is_dynamic, source_info)
+    if is_dynamic and var.get('expression'):
+        # Expression-only: we cannot evaluate at parse time
+        source_info['resolved'] = False
+        source_info['reason'] = 'Dynamic expression - cannot resolve at parse time'
+        source_info['expression'] = var.get('expression', '')
+        return (None, True, source_info)
+    return (None, False, source_info)
 
 
 def parse_connection_managers(root) -> List[Dict[str, Any]]:
@@ -542,7 +710,10 @@ def parse_pipeline_paths(pipeline_element) -> List[Dict[str, Any]]:
     return paths
 
 
-def parse_data_flow_components(pipeline_element) -> List[Dict[str, Any]]:
+def parse_data_flow_components(
+    pipeline_element,
+    variable_lookup: Optional[Dict[str, Dict[str, Any]]] = None
+) -> List[Dict[str, Any]]:
     """
     FR-3 / FR-4: Parse data flow components from a pipeline element.
     Detects: OLE DB Source, ADO.NET Source, Flat File Source, OLE DB Destination,
@@ -550,11 +721,13 @@ def parse_data_flow_components(pipeline_element) -> List[Dict[str, Any]]:
     Extracts source metadata (SourceSchemaName, SourceTableName, SourceQuery, SourceID),
     destination metadata (TargetTableName, TargetSchemaName, TargetDBName, CopyMode),
     and transformation logic (pysparkEquivalent, column mappings, expressions, sequence).
+    When SqlCommand is empty and SqlCommandVariable is set, resolves the variable to get the SQL query.
     """
     components = []
     if pipeline_element is None:
         return components
     
+    variable_lookup = variable_lookup or {}
     component_elements = pipeline_element.findall('.//component')
     source_counter = 0
     
@@ -592,6 +765,17 @@ def parse_data_flow_components(pipeline_element) -> List[Dict[str, Any]]:
                 if full_text:
                     sql_command = full_text
                 break
+        # SqlCommandVariable: resolve variable when SqlCommand is empty
+        sql_command_variable_ref = (prop_dict.get('SqlCommandVariable') or '').strip()
+        sql_command_source_info = None
+        if not sql_command and sql_command_variable_ref and variable_lookup:
+            resolved_sql, is_dynamic, source_info = resolve_sql_from_variable(sql_command_variable_ref, variable_lookup)
+            sql_command_source_info = source_info
+            if resolved_sql:
+                sql_command = resolved_sql
+            elif is_dynamic and source_info.get('expression'):
+                # Dynamic/unresolved: store placeholder for UI to display
+                sql_command = f"[Dynamic query - Variable: {sql_command_variable_ref}]\nExpression: {source_info.get('expression', '')[:200]}..."
         open_rowset = (prop_dict.get('OpenRowset') or '').strip()
         
         # FR-2+: Extract ALL connections from component (not just first one) with full metadata
@@ -663,6 +847,11 @@ def parse_data_flow_components(pipeline_element) -> List[Dict[str, Any]]:
             }
             if sql_command:
                 component['sourceMetadata']['sourceQuery'] = sql_command
+            # Record when query came from SqlCommandVariable (for UI visibility)
+            if sql_command_variable_ref:
+                component['sourceMetadata']['sqlCommandVariableRef'] = sql_command_variable_ref
+            if sql_command_source_info:
+                component['sourceMetadata']['sqlCommandSourceInfo'] = sql_command_source_info
             
             # Extract table references from the source query
             if sql_command:
@@ -700,6 +889,25 @@ def parse_data_flow_components(pipeline_element) -> List[Dict[str, Any]]:
             }
             if not expressions and pyspark_equivalent:
                 component['transformationLogic']['columnMappings'] = [{'outputColumn': c.get('name'), 'expression': '', 'friendlyExpression': ''} for c in output_columns]
+            # Referenced tables from SQL (Lookup SqlCommand, ADO.NET Lookup, etc.)
+            ref_from_sql: List[Dict[str, str]] = []
+            if sql_command and _sql_text_usable_for_table_extraction(sql_command):
+                ref_from_sql = extract_table_references(sql_command)
+            # Rare: embedded SQL in Derived Column / Conditional Split expressions
+            expr_sql_chunks: List[str] = []
+            for e in expressions:
+                for key in ('expression', 'friendlyExpression'):
+                    val = (e.get(key) or '')
+                    if _expression_may_contain_sql_for_tables(val):
+                        expr_sql_chunks.append(val)
+            ref_tables = ref_from_sql
+            if expr_sql_chunks:
+                ref_tables = merge_referenced_tables_lists(
+                    ref_from_sql,
+                    extract_table_references('\n'.join(expr_sql_chunks)),
+                )
+            if ref_tables:
+                component['transformationLogic']['referencedTables'] = ref_tables
         
         components.append(component)
     
@@ -723,12 +931,14 @@ def _collect_executables_with_parent(executables_elem, parent_ref_id: Optional[s
     return result
 
 
-def parse_activities(root) -> List[Dict[str, Any]]:
+def parse_activities(root, variables: Optional[List[Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
     """
     Step 1: Extract all control flow activities (including nested in Sequence Containers).
     Each activity includes parentContainerRefId when inside a container.
+    When variables is provided, uses them to resolve SqlCommandVariable in Data Flow components.
     """
     activities = []
+    variable_lookup = build_variable_lookup(variables or parse_variables(root))
     executables_container = root.find('DTS:Executables', DTS_NAMESPACE)
     package_ref_id = extract_attribute(root, 'refId') or 'Package'
     if executables_container is None:
@@ -993,7 +1203,7 @@ def parse_activities(root) -> List[Dict[str, Any]]:
         if 'Pipeline' in exe_type or 'Pipeline' in creation_name:
             pipeline = exe.find('.//pipeline')
             if pipeline is not None:
-                components = parse_data_flow_components(pipeline)
+                components = parse_data_flow_components(pipeline, variable_lookup=variable_lookup)
                 data_flow_paths = parse_pipeline_paths(pipeline)
                 for comp in components:
                     for prop in comp.get('properties', []):
@@ -2142,7 +2352,7 @@ async def parse_dtsx(
         metadata = parse_package_metadata(root)
         connection_managers = parse_connection_managers(root)
         variables = parse_variables(root)
-        activities = parse_activities(root)
+        activities = parse_activities(root, variables=variables)
         precedence_map, constraints_detail = parse_precedence_constraints_detailed(root)
         execution_sequence = build_execution_sequence(activities, precedence_map)
         
@@ -2321,6 +2531,9 @@ async def parse_dtsx(
         # FR-2+: Build connections usage map to show where each connection is used
         connections_usage_map = build_connections_usage_map(activities, connection_managers)
         
+        # Package-wide referenced tables (Execute SQL, Data Flow sources/destinations/transformations)
+        pkg_ref_tables = aggregate_package_referenced_tables(activities)
+
         # Build response (FR-2/FR-3/FR-4: execution sequence, variables, activity flow)
         parsed_data = {
             'metadata': metadata,
@@ -2333,6 +2546,8 @@ async def parse_dtsx(
             'activityFlowGraph': activity_flow_graph,
             'containers': containers,
             'componentSummary': component_summary,
+            'packageReferencedTables': pkg_ref_tables['packageReferencedTables'],
+            'packageReferencedTablesDetailed': pkg_ref_tables['packageReferencedTablesDetailed'],
         }
 
         package_id = str(uuid.uuid4())

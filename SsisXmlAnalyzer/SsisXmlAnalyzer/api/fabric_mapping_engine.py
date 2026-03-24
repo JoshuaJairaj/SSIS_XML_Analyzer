@@ -392,6 +392,9 @@ class MappingEngine:
         """Specialized mapping for OLE DB Source."""
         properties = {p.get('name'): p.get('value') for p in component.get('properties', [])}
         conn_details = component.get('connectionDetails', {})
+        # Prefer direct SqlCommand; fall back to sourceMetadata.sourceQuery (resolved from SqlCommandVariable)
+        source_meta = component.get('sourceMetadata') or {}
+        query = properties.get('SqlCommand') or source_meta.get('sourceQuery') or ''
         
         # Determine if Fabric Warehouse or SQL Endpoint
         target = 'FabricWarehouse' if conn_details.get('initialCatalog') else 'SQLEndpoint'
@@ -401,14 +404,14 @@ class MappingEngine:
             'confidence': 0.9,
             'supportLevel': 'full',
             'mapping': {
-                'query': properties.get('SqlCommand'),
+                'query': query,
                 'tableName': properties.get('TableName'),
                 'connectionManager': component.get('connectionId'),
                 'dataSource': conn_details.get('dataSource'),
                 'database': conn_details.get('initialCatalog')
             },
             'warnings': [w for w in [
-                "SSIS-specific query hints may not be supported" if 'WITH' in properties.get('SqlCommand', '').upper() else None
+                "SSIS-specific query hints may not be supported" if 'WITH' in (query or '').upper() else None
             ] if w]
         }
     

@@ -82,6 +82,8 @@ export const sourceMetadataSchema = z.object({
   sourceQuery: z.string().optional(),
   openRowset: z.string().optional(),
   referencedTables: z.array(tableReferenceSchema).optional(), // Tables referenced in the query
+  sqlCommandVariableRef: z.string().optional(), // e.g. "User::Qry" when query comes from variable
+  sqlCommandSourceInfo: z.record(z.unknown()).optional(), // Metadata about variable resolution
 });
 
 export type SourceMetadata = z.infer<typeof sourceMetadataSchema>;
@@ -112,6 +114,7 @@ export const transformationLogicSchema = z.object({
     expression: z.string(),
     friendlyExpression: z.string(),
   })).optional(),
+  referencedTables: z.array(tableReferenceSchema).optional(), // From Lookup SqlCommand, etc.
 });
 
 export type TransformationLogic = z.infer<typeof transformationLogicSchema>;
@@ -335,6 +338,14 @@ export const containerSchema = z.object({
 
 export type Container = z.infer<typeof containerSchema>;
 
+// Package-wide referenced tables (aggregated from all SQL in the package)
+export const packageReferencedTableDetailSchema = z.object({
+  table: tableReferenceSchema,
+  referencedFrom: z.array(z.string()),
+});
+
+export type PackageReferencedTableDetail = z.infer<typeof packageReferencedTableDetailSchema>;
+
 // Parsed SSIS Package
 export const parsedPackageSchema = z.object({
   metadata: packageMetadataSchema,
@@ -347,6 +358,8 @@ export const parsedPackageSchema = z.object({
   precedenceConstraints: z.array(precedenceConstraintSchema).optional(),
   activityFlowGraph: activityFlowGraphSchema.optional(),
   containers: z.array(containerSchema).optional(),
+  packageReferencedTables: z.array(tableReferenceSchema).optional(),
+  packageReferencedTablesDetailed: z.array(packageReferencedTableDetailSchema).optional(),
 });
 
 export type ParsedPackage = z.infer<typeof parsedPackageSchema>;
